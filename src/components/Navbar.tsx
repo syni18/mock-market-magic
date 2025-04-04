@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Search } from 'lucide-react';
+import { Menu, X, ShoppingCart, Search, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
@@ -19,17 +19,7 @@ export function Navbar() {
           <span className="text-2xl font-bold text-ecommerce-600">ShopWave</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="text-sm font-medium text-foreground hover:text-ecommerce-600 transition-colors">
-            Home
-          </Link>
-          <Link to="/products" className="text-sm font-medium text-foreground hover:text-ecommerce-600 transition-colors">
-            Products
-          </Link>
-        </div>
-
-        {/* Search and Cart */}
+        {/* Search and Authentication */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="relative w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -38,6 +28,11 @@ export function Navbar() {
               className="pl-8"
             />
           </div>
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/signin">
+              <UserCircle className="h-5 w-5" />
+            </Link>
+          </Button>
           <Link to="/cart">
             <Button variant="outline" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
@@ -52,7 +47,12 @@ export function Navbar() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center">
-          <Link to="/cart" className="mr-4 relative">
+          <Link to="/signin" className="mr-2">
+            <Button variant="ghost" size="icon">
+              <UserCircle className="h-5 w-5" />
+            </Button>
+          </Link>
+          <Link to="/cart" className="mr-2 relative">
             <Button variant="outline" size="icon">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
@@ -80,22 +80,6 @@ export function Navbar() {
               placeholder="Search products..." 
               className="pl-8"
             />
-          </div>
-          <div className="flex flex-col space-y-3">
-            <Link 
-              to="/" 
-              className="text-base font-medium text-foreground hover:text-ecommerce-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/products" 
-              className="text-base font-medium text-foreground hover:text-ecommerce-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Products
-            </Link>
           </div>
         </div>
       </div>
