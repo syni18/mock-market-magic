@@ -1,41 +1,140 @@
-
 import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Phone, LockKeyhole } from 'lucide-react';
+import { Mail, Phone, LockKeyhole, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { createUserProfile } from '@/services/userService';
+import { supabase } from '@/lib/supabase';
+
+// Validation schemas
+const signInSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
+
+const signUpSchema = z.object({
+  fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  confirmPassword: z.string().min(6, { message: "Confirm password is required" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+const phoneSchema = z.object({
+  phoneNumber: z.string().min(10, { message: "Please enter a valid phone number" }),
+});
+
+const otpSchema = z.object({
+  code: z.string().min(6, { message: "Please enter a valid verification code" }),
+});
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
+  const [activeTab, setActiveTab] = useState<string>("signin");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const navigate = useNavigate();
+  const { signIn, signUp, signInWithPhone, verifyOtp, user } = useAuth();
 
-  const handleEmailSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Sign in attempted with:', { email, password });
-    // Here you would integrate with Supabase for email auth
-  };
+  // Form handlers
+  const signInForm = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const handlePhoneSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isVerifying) {
-      console.log('Sending verification code to:', phoneNumber);
-      setIsVerifying(true);
-      // Here you would send verification code via Supabase
-    } else {
-      console.log('Verifying code:', verificationCode);
-      // Here you would verify the code via Supabase
+  const signUpForm = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  const phoneForm = useForm<z.infer<typeof phoneSchema>>({
+    resolver: zodResolver(phoneSchema),
+    defaultValues: {
+      phoneNumber: '',
+    },
+  });
+
+  const otpForm = useForm<z.infer<typeof otpSchema>>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      code: '',
+    },
+  });
+
+  // Handle email sign in
+  const handleEmailSignIn = async (values: z.infer<typeof signInSchema>) => {
+    const { error } = await signIn(values.email, values.password);
+    if (!error) {
+      navigate('/');
     }
   };
 
-  const handleGoogleSignIn = () => {
-    console.log('Signing in with Google');
-    // Here you would integrate with Supabase for Google auth
+  // Handle sign up
+  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
+    const { email, password, fullName } = values;
+    const userData = { full_name: fullName };
+    
+    const { error, user } = await signUp(email, password, userData);
+    
+    if (!error && user) {
+      // Create user profile in the profiles table
+      await createUserProfile({
+        id: user.id,
+        email: user.email,
+        full_name: fullName,
+        created_at: new Date().toISOString(),
+      });
+      
+      setActiveTab("signin");
+    }
+  };
+
+  // Handle phone sign in
+  const handlePhoneSignIn = async (values: z.infer<typeof phoneSchema>) => {
+    const phone = values.phoneNumber;
+    setPhoneNumber(phone);
+    const { error } = await signInWithPhone(phone);
+    if (!error) {
+      setIsVerifying(true);
+    }
+  };
+
+  // Handle OTP verification
+  const handleVerifyOtp = async (values: z.infer<typeof otpSchema>) => {
+    const { error } = await verifyOtp(phoneNumber, values.code);
+    if (!error) {
+      navigate('/');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    // Supabase redirects for OAuth, so we need to redirect without promise handling
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
+      });
+    } catch (error) {
+      console.error('Google sign in error:', error);
+    }
   };
 
   return (
@@ -45,105 +144,249 @@ const SignIn = () => {
       <main className="flex-grow py-8 md:py-16 px-4">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-            <p className="text-gray-600 mt-2">Sign in to continue shopping</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {activeTab === "signin" ? "Welcome Back" : "Create Account"}
+            </h1>
+            <p className="text-gray-600 mt-2">
+              {activeTab === "signin" ? "Sign in to continue shopping" : "Sign up to get started"}
+            </p>
           </div>
           
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
-            <Tabs defaultValue="email" className="w-full">
+            <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-2 mb-6">
-                <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="phone">Phone</TabsTrigger>
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="email">
-                <form onSubmit={handleEmailSignIn} className="space-y-5">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="email"
-                        placeholder="Email address"
-                        className="pl-10"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
+              <TabsContent value="signin">
+                <Tabs defaultValue="email" className="w-full">
+                  <TabsList className="grid grid-cols-2 mb-6">
+                    <TabsTrigger value="email">Email</TabsTrigger>
+                    <TabsTrigger value="phone">Phone</TabsTrigger>
+                  </TabsList>
                   
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        className="pl-10"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="text-right">
-                      <a href="#" className="text-sm text-ecommerce-600 hover:underline">
-                        Forgot password?
-                      </a>
-                    </div>
-                  </div>
+                  <TabsContent value="email">
+                    <Form {...signInForm}>
+                      <form onSubmit={signInForm.handleSubmit(handleEmailSignIn)} className="space-y-5">
+                        <FormField
+                          control={signInForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem className="space-y-2">
+                              <div className="relative">
+                                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <FormControl>
+                                  <Input
+                                    type="email"
+                                    placeholder="Email address"
+                                    className="pl-10"
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={signInForm.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem className="space-y-2">
+                              <div className="relative">
+                                <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <FormControl>
+                                  <Input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="pl-10"
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </div>
+                              <div className="text-right">
+                                <a href="#" className="text-sm text-ecommerce-600 hover:underline">
+                                  Forgot password?
+                                </a>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button type="submit" className="w-full">
+                          Sign in
+                        </Button>
+                      </form>
+                    </Form>
+                  </TabsContent>
                   
-                  <Button type="submit" className="w-full">
-                    Sign in
-                  </Button>
-                </form>
+                  <TabsContent value="phone">
+                    {!isVerifying ? (
+                      <Form {...phoneForm}>
+                        <form onSubmit={phoneForm.handleSubmit(handlePhoneSignIn)} className="space-y-5">
+                          <FormField
+                            control={phoneForm.control}
+                            name="phoneNumber"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <div className="relative">
+                                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <FormControl>
+                                    <Input
+                                      type="tel"
+                                      placeholder="Phone number"
+                                      className="pl-10"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button type="submit" className="w-full">
+                            Continue
+                          </Button>
+                        </form>
+                      </Form>
+                    ) : (
+                      <Form {...otpForm}>
+                        <form onSubmit={otpForm.handleSubmit(handleVerifyOtp)} className="space-y-5">
+                          <FormField
+                            control={otpForm.control}
+                            name="code"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormControl>
+                                  <Input
+                                    type="text"
+                                    placeholder="Enter verification code"
+                                    className="text-center text-xl tracking-wider"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <p className="text-sm text-center text-gray-500">
+                                  We've sent a code to {phoneNumber}
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <Button type="submit" className="w-full">
+                            Verify Code
+                          </Button>
+                          
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            className="w-full"
+                            onClick={() => setIsVerifying(false)}
+                          >
+                            Change phone number
+                          </Button>
+                        </form>
+                      </Form>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
               
-              <TabsContent value="phone">
-                <form onSubmit={handlePhoneSignIn} className="space-y-5">
-                  {!isVerifying ? (
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          type="tel"
-                          placeholder="Phone number"
-                          className="pl-10"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter verification code"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        className="text-center text-xl tracking-wider"
-                        required
-                      />
-                      <p className="text-sm text-center text-gray-500">
-                        We've sent a code to {phoneNumber}
-                      </p>
-                    </div>
-                  )}
-                  
-                  <Button type="submit" className="w-full">
-                    {!isVerifying ? 'Continue' : 'Verify Code'}
-                  </Button>
-                  
-                  {isVerifying && (
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      className="w-full"
-                      onClick={() => setIsVerifying(false)}
-                    >
-                      Change phone number
+              <TabsContent value="signup">
+                <Form {...signUpForm}>
+                  <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-5">
+                    <FormField
+                      control={signUpForm.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Full name"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signUpForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="Email address"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signUpForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <div className="relative">
+                            <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <FormControl>
+                              <Input
+                                type="password"
+                                placeholder="Password"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signUpForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <div className="relative">
+                            <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <FormControl>
+                              <Input
+                                type="password"
+                                placeholder="Confirm password"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" className="w-full">
+                      Create Account
                     </Button>
-                  )}
-                </form>
+                  </form>
+                </Form>
               </TabsContent>
             </Tabs>
             
@@ -186,10 +429,16 @@ const SignIn = () => {
             </div>
             
             <div className="mt-6 text-center text-sm">
-              <span className="text-gray-600">Don't have an account?</span>
-              <a href="#" className="ml-1 text-ecommerce-600 hover:underline">
-                Sign up
-              </a>
+              <span className="text-gray-600">
+                {activeTab === "signin" ? "Don't have an account?" : "Already have an account?"}
+              </span>
+              <button
+                type="button"
+                className="ml-1 text-ecommerce-600 hover:underline"
+                onClick={() => setActiveTab(activeTab === "signin" ? "signup" : "signin")}
+              >
+                {activeTab === "signin" ? "Sign up" : "Sign in"}
+              </button>
             </div>
           </div>
         </div>

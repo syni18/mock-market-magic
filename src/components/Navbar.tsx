@@ -1,18 +1,28 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, UserCircle } from 'lucide-react';
+import { ShoppingCart, Search, UserCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { cartCount } = useCart();
+  const { user, signOut } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -32,6 +42,22 @@ export function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.user_metadata?.full_name) return "U";
+    
+    const fullName = user.user_metadata.full_name as string;
+    const names = fullName.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return fullName[0].toUpperCase();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,12 +84,56 @@ export function Navbar() {
                 onFocus={() => setIsSearchFocused(true)}
               />
             </div>
-            <Button variant="ghost" size="icon" asChild className="relative">
-              <Link to="/signin">
-                <UserCircle className="h-5 w-5" />
-                <span className="sr-only">Sign In</span>
-              </Link>
-            </Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Avatar className="h-8 w-8 border border-ecommerce-200">
+                      {user.user_metadata?.avatar_url ? (
+                        <AvatarImage src={user.user_metadata.avatar_url} />
+                      ) : (
+                        <AvatarFallback className="bg-ecommerce-100 text-ecommerce-600">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer w-full">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/orders" className="cursor-pointer w-full">
+                      Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="cursor-pointer w-full">
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link to="/signin">
+                  <UserCircle className="h-5 w-5" />
+                  <span className="sr-only">Sign In</span>
+                </Link>
+              </Button>
+            )}
+            
             <Link to="/cart">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
@@ -79,11 +149,45 @@ export function Navbar() {
 
         {/* Mobile Icons */}
         <div className="md:hidden flex items-center gap-2">
-          <Link to="/signin">
-            <Button variant="outline" size="icon" className="relative h-8 w-8">
-              <UserCircle className="h-5 w-5" />
-            </Button>
-          </Link>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="relative h-8 w-8">
+                  <Avatar className="h-7 w-7 border border-ecommerce-200">
+                    {user.user_metadata?.avatar_url ? (
+                      <AvatarImage src={user.user_metadata.avatar_url} />
+                    ) : (
+                      <AvatarFallback className="bg-ecommerce-100 text-ecommerce-600">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="cursor-pointer w-full">
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/orders" className="cursor-pointer w-full">
+                    Orders
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/signin">
+              <Button variant="outline" size="icon" className="relative h-8 w-8">
+                <UserCircle className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
           <Link to="/cart" className="relative">
             <Button variant="outline" size="icon">
               <ShoppingCart className="h-5 w-5" />
@@ -94,7 +198,6 @@ export function Navbar() {
               )}
             </Button>
           </Link>
-          {/* Hamburger menu removed */}
         </div>
       </nav>
 
