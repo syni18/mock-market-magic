@@ -1,15 +1,33 @@
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, ShoppingCart, Search, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { cartCount } = useCart();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+
+  // Handle click outside search to reset focus state
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -19,40 +37,49 @@ export function Navbar() {
           <span className="text-2xl font-bold text-ecommerce-600">ShopWave</span>
         </Link>
 
-        {/* Search and Authentication */}
-        <div className="hidden md:flex items-center space-x-4">
-          <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search products..." 
-              className="pl-8"
-            />
-          </div>
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/signin">
-              <UserCircle className="h-5 w-5" />
-            </Link>
-          </Button>
-          <Link to="/cart">
-            <Button variant="outline" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-ecommerce-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
+        {/* Search and Authentication for desktop */}
+        {!isMobile && (
+          <div className="hidden md:flex items-center space-x-4">
+            <div 
+              className={cn(
+                "relative transition-all duration-300 ease-in-out", 
+                isSearchFocused ? "w-96" : "w-64"
               )}
+            >
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                ref={searchInputRef}
+                placeholder="Search products..." 
+                className="pl-8"
+                onFocus={() => setIsSearchFocused(true)}
+              />
+            </div>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/signin">
+                <UserCircle className="h-5 w-5" />
+              </Link>
             </Button>
-          </Link>
-        </div>
+            <Link to="/cart">
+              <Button variant="outline" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-ecommerce-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          </div>
+        )}
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
-          <Link to="/signin" className="mr-2">
+        {/* Mobile Icons */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link to="/signin">
             <Button variant="ghost" size="icon">
               <UserCircle className="h-5 w-5" />
             </Button>
           </Link>
-          <Link to="/cart" className="mr-2 relative">
+          <Link to="/cart" className="relative">
             <Button variant="outline" size="icon">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
@@ -68,19 +95,24 @@ export function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile Search Bar */}
+      <div className="md:hidden px-4 py-2 border-t">
+        <div className="relative w-full">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search products..." 
+            className="pl-8 w-full"
+          />
+        </div>
+      </div>
+
       {/* Mobile Menu */}
       <div className={cn(
-        "md:hidden overflow-hidden transition-all duration-300 border-t",
+        "md:hidden overflow-hidden transition-all duration-300",
         isMenuOpen ? "max-h-64" : "max-h-0"
       )}>
         <div className="container py-4 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search products..." 
-              className="pl-8"
-            />
-          </div>
+          {/* Additional mobile menu items can go here if needed */}
         </div>
       </div>
     </header>
