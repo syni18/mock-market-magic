@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Smartphone, Home, Utensils, Laptop, TShirt, Baby } from 'lucide-react';
+import { Smartphone, Home, Utensils, Laptop, Shirt, Baby } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Define the categories with their icons and paths
@@ -9,7 +9,7 @@ const categories = [
   { name: "Home", icon: Home, path: "/products?category=home" },
   { name: "Kitchen", icon: Utensils, path: "/products?category=kitchen" },
   { name: "Computers", icon: Laptop, path: "/products?category=computers" },
-  { name: "Fashion", icon: TShirt, path: "/products?category=fashion" },
+  { name: "Fashion", icon: Shirt, path: "/products?category=fashion" },
   { name: "Kids", icon: Baby, path: "/products?category=kids" },
 ];
 
