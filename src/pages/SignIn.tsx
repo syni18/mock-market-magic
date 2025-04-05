@@ -4,8 +4,8 @@ import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Phone, LockKeyhole, ArrowRight } from 'lucide-react';
-import { CategoryDisplay } from '@/components/CategoryDisplay';
+import { Mail, Phone, LockKeyhole } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +13,7 @@ const SignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailSignIn = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +41,6 @@ const SignIn = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50">
       <Navbar />
-      <CategoryDisplay />
       
       <main className="flex-grow py-8 md:py-16 px-4">
         <div className="max-w-md mx-auto">

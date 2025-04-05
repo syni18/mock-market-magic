@@ -19,7 +19,7 @@ export function CategoryDisplay() {
   return (
     <div className="py-6 bg-gradient-to-r from-gray-50 to-slate-50">
       <div className="container">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 max-w-3xl mx-auto">
           {categories.map((category) => (
             <Link 
               key={category.name}

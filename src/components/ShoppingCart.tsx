@@ -3,19 +3,26 @@ import { useState } from 'react';
 import { useCart, CartItem } from '@/context/CartContext';
 import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function ShoppingCart() {
   const { items, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+  
+  const handleContinueShopping = () => {
+    // For now, we'll just redirect to the homepage
+    // In a real app with authentication, you would check if the user is logged in
+    navigate('/');
+  };
 
   if (items.length === 0) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
         <p className="text-gray-500 mb-8">Looks like you haven't added any products to your cart yet.</p>
-        <Link to="/products">
-          <Button>Continue Shopping</Button>
-        </Link>
+        <Button onClick={handleContinueShopping}>
+          Continue Shopping
+        </Button>
       </div>
     );
   }

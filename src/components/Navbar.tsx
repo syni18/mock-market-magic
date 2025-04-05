@@ -1,12 +1,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Search, UserCircle } from 'lucide-react';
+import { Menu, ShoppingCart, Search, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,9 +55,10 @@ export function Navbar() {
                 onFocus={() => setIsSearchFocused(true)}
               />
             </div>
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild className="relative">
               <Link to="/signin">
                 <UserCircle className="h-5 w-5" />
+                <span className="sr-only">Sign In</span>
               </Link>
             </Button>
             <Link to="/cart">
@@ -75,8 +77,12 @@ export function Navbar() {
         {/* Mobile Icons */}
         <div className="md:hidden flex items-center gap-2">
           <Link to="/signin">
-            <Button variant="ghost" size="icon">
-              <UserCircle className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="relative">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="bg-ecommerce-100 text-ecommerce-600">
+                  <UserCircle className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
           </Link>
           <Link to="/cart" className="relative">
@@ -90,7 +96,7 @@ export function Navbar() {
             </Button>
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Menu className="h-6 w-6" />
           </Button>
         </div>
       </nav>
