@@ -45,11 +45,11 @@ const SignIn = () => {
       <main className="flex-grow py-8 md:py-16 px-4">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 animate-fade-in">Welcome Back</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
             <p className="text-gray-600 mt-2">Sign in to continue shopping</p>
           </div>
           
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg animate-fade-in">
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
             <Tabs defaultValue="email" className="w-full">
               <TabsList className="grid grid-cols-2 mb-6">
                 <TabsTrigger value="email">Email</TabsTrigger>
