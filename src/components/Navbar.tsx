@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, ShoppingCart, Search, UserCircle } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ShoppingCart, Search, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
@@ -15,6 +15,9 @@ export function Navbar() {
   const { cartCount } = useCart();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const location = useLocation();
+  
+  const isSignInPage = location.pathname === "/signin";
 
   // Handle click outside search to reset focus state
   useEffect(() => {
@@ -77,12 +80,8 @@ export function Navbar() {
         {/* Mobile Icons */}
         <div className="md:hidden flex items-center gap-2">
           <Link to="/signin">
-            <Button variant="ghost" size="icon" className="relative">
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="bg-ecommerce-100 text-ecommerce-600">
-                  <UserCircle className="h-5 w-5" />
-                </AvatarFallback>
-              </Avatar>
+            <Button variant="outline" size="icon" className="relative h-8 w-8">
+              <UserCircle className="h-5 w-5" />
             </Button>
           </Link>
           <Link to="/cart" className="relative">
@@ -95,22 +94,22 @@ export function Navbar() {
               )}
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <Menu className="h-6 w-6" />
-          </Button>
+          {/* Hamburger menu removed */}
         </div>
       </nav>
 
-      {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 py-2 border-t">
-        <div className="relative w-full">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search products..." 
-            className="pl-8 w-full"
-          />
+      {/* Mobile Search Bar - Only show if not on sign-in page */}
+      {isMobile && !isSignInPage && (
+        <div className="md:hidden px-4 py-2 border-t">
+          <div className="relative w-full">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search products..." 
+              className="pl-8 w-full"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Menu */}
       <div className={cn(
