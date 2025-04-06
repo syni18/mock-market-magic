@@ -1,13 +1,48 @@
 
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, ArrowRight, Truck, ShieldCheck, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
+      {/* Features Section - Moved from Index */}
+      <div className="bg-gray-800 py-8">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 flex flex-col items-center">
+              <div className="bg-gray-700 rounded-full p-3 inline-flex mb-3">
+                <Truck className="h-6 w-6 text-ecommerce-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1 text-white">Fast Delivery</h3>
+              <p className="text-gray-400 text-sm">
+                Get your products delivered quickly
+              </p>
+            </div>
+            <div className="text-center p-4 flex flex-col items-center">
+              <div className="bg-gray-700 rounded-full p-3 inline-flex mb-3">
+                <ShieldCheck className="h-6 w-6 text-ecommerce-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1 text-white">Quality Guarantee</h3>
+              <p className="text-gray-400 text-sm">
+                Premium quality products
+              </p>
+            </div>
+            <div className="text-center p-4 flex flex-col items-center">
+              <div className="bg-gray-700 rounded-full p-3 inline-flex mb-3">
+                <RefreshCcw className="h-6 w-6 text-ecommerce-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1 text-white">Easy Returns</h3>
+              <p className="text-gray-400 text-sm">
+                30-day return policy
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer content */}
       <div className="container py-12">
-        {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <h3 className="text-2xl font-bold mb-6 text-white">ShopWave</h3>
