@@ -147,28 +147,28 @@ const SignIn = () => {
         </Link>
       </div>
       
-      <div className="flex-grow flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+      <div className="flex-grow flex items-center justify-center px-4 py-12">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
               {isSignIn ? "Welcome Back" : "Create Account"}
             </h1>
-            <p className="text-gray-600 mt-2 text-sm md:text-base">
+            <p className="text-gray-600 mt-2">
               {isSignIn ? "Sign in to continue shopping" : "Sign up to get started"}
             </p>
           </div>
           
-          <div className="bg-white p-5 md:p-8 rounded-2xl shadow-xl">
+          <div className="bg-white p-8 rounded-2xl shadow-xl">
             {isSignIn ? (
               <>
                 {!isPhoneLogin ? (
                   <Form {...signInForm}>
-                    <form onSubmit={signInForm.handleSubmit(handleEmailSignIn)} className="space-y-4">
+                    <form onSubmit={signInForm.handleSubmit(handleEmailSignIn)} className="space-y-5">
                       <FormField
                         control={signInForm.control}
                         name="email"
                         render={({ field }) => (
-                          <FormItem className="space-y-1">
+                          <FormItem className="space-y-2">
                             <div className="relative">
                               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                               <FormControl>
@@ -189,7 +189,7 @@ const SignIn = () => {
                         control={signInForm.control}
                         name="password"
                         render={({ field }) => (
-                          <FormItem className="space-y-1">
+                          <FormItem className="space-y-2">
                             <div className="relative">
                               <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                               <FormControl>
@@ -202,7 +202,7 @@ const SignIn = () => {
                               </FormControl>
                             </div>
                             <div className="text-right">
-                              <a href="#" className="text-xs md:text-sm text-indigo-600 hover:underline">
+                              <a href="#" className="text-sm text-indigo-600 hover:underline">
                                 Forgot password?
                               </a>
                             </div>
@@ -219,7 +219,7 @@ const SignIn = () => {
                         <button 
                           type="button" 
                           onClick={() => setIsPhoneLogin(true)}
-                          className="text-xs md:text-sm text-indigo-600 hover:underline"
+                          className="text-sm text-indigo-600 hover:underline"
                         >
                           Sign in with phone number
                         </button>
@@ -230,12 +230,12 @@ const SignIn = () => {
                   <>
                     {!isVerifying ? (
                       <Form {...phoneForm}>
-                        <form onSubmit={phoneForm.handleSubmit(handlePhoneSignIn)} className="space-y-4">
+                        <form onSubmit={phoneForm.handleSubmit(handlePhoneSignIn)} className="space-y-5">
                           <FormField
                             control={phoneForm.control}
                             name="phoneNumber"
                             render={({ field }) => (
-                              <FormItem className="space-y-1">
+                              <FormItem className="space-y-2">
                                 <div className="relative">
                                   <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <FormControl>
@@ -259,7 +259,7 @@ const SignIn = () => {
                             <button 
                               type="button" 
                               onClick={() => setIsPhoneLogin(false)}
-                              className="text-xs md:text-sm text-indigo-600 hover:underline"
+                              className="text-sm text-indigo-600 hover:underline"
                             >
                               Back to email login
                             </button>
@@ -268,21 +268,21 @@ const SignIn = () => {
                       </Form>
                     ) : (
                       <Form {...otpForm}>
-                        <form onSubmit={otpForm.handleSubmit(handleVerifyOtp)} className="space-y-4">
+                        <form onSubmit={otpForm.handleSubmit(handleVerifyOtp)} className="space-y-5">
                           <FormField
                             control={otpForm.control}
                             name="code"
                             render={({ field }) => (
-                              <FormItem className="space-y-1">
+                              <FormItem className="space-y-2">
                                 <FormControl>
                                   <Input
                                     type="text"
                                     placeholder="Enter verification code"
-                                    className="text-center text-base md:text-xl tracking-wider"
+                                    className="text-center text-xl tracking-wider"
                                     {...field}
                                   />
                                 </FormControl>
-                                <p className="text-xs md:text-sm text-center text-gray-500">
+                                <p className="text-sm text-center text-gray-500">
                                   We've sent a code to {phoneNumber}
                                 </p>
                                 <FormMessage />
@@ -297,7 +297,7 @@ const SignIn = () => {
                           <Button 
                             type="button" 
                             variant="ghost" 
-                            className="w-full text-xs md:text-sm"
+                            className="w-full"
                             onClick={() => setIsVerifying(false)}
                           >
                             Change phone number
@@ -310,12 +310,12 @@ const SignIn = () => {
               </>
             ) : (
               <Form {...signUpForm}>
-                <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
+                <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-5">
                   <FormField
                     control={signUpForm.control}
                     name="fullName"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-2">
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
@@ -336,7 +336,7 @@ const SignIn = () => {
                     control={signUpForm.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-2">
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
@@ -357,7 +357,7 @@ const SignIn = () => {
                     control={signUpForm.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-2">
                         <div className="relative">
                           <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
@@ -378,7 +378,7 @@ const SignIn = () => {
                     control={signUpForm.control}
                     name="confirmPassword"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-2">
                         <div className="relative">
                           <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
@@ -402,12 +402,12 @@ const SignIn = () => {
               </Form>
             )}
             
-            <div className="mt-5">
+            <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-xs md:text-sm">
+                <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
@@ -415,10 +415,10 @@ const SignIn = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mt-4 flex items-center justify-center gap-2 hover:bg-gray-50 text-xs md:text-sm"
+                className="w-full mt-5 flex items-center justify-center gap-2 hover:bg-gray-50"
                 onClick={handleGoogleSignIn}
               >
-                <svg className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -440,7 +440,7 @@ const SignIn = () => {
               </Button>
             </div>
             
-            <div className="mt-4 text-center text-xs md:text-sm">
+            <div className="mt-6 text-center text-sm">
               <span className="text-gray-600">
                 {isSignIn ? "Don't have an account?" : "Already have an account?"}
               </span>

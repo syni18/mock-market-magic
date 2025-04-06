@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Smartphone, Home, Utensils, Laptop, Shirt, Gift } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';

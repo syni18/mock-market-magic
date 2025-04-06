@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Product } from '@/data/products';
 import { Button } from '@/components/ui/button';
