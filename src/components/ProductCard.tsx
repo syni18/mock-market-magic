@@ -26,45 +26,45 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
       
-      <div className="p-3 md:p-4">
-        <div className="flex justify-between items-start mb-1 md:mb-2">
+      <div className="p-2 md:p-3">
+        <div className="flex justify-between items-start mb-1">
           <Link to={`/products/${product.id}`} className="block">
-            <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-lg'} line-clamp-1 hover:text-ecommerce-600 transition-colors`}>
+            <h3 className={`font-medium ${isMobile ? 'text-xs' : 'text-base'} line-clamp-1 hover:text-ecommerce-600 transition-colors`}>
               {product.name}
             </h3>
           </Link>
           
           {product.stock <= 5 && product.stock > 0 && (
-            <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full text-[10px] md:text-xs">
+            <span className="bg-orange-100 text-orange-800 text-xs px-1 py-0.5 rounded-full text-[9px] md:text-xs">
               Low Stock
             </span>
           )}
           
           {product.stock === 0 && (
-            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full text-[10px] md:text-xs">
+            <span className="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full text-[9px] md:text-xs">
               Out of Stock
             </span>
           )}
         </div>
         
-        <div className="flex items-center mb-1 md:mb-3">
-          <div className="flex items-center text-amber-500 mr-1 md:mr-2">
+        <div className="flex items-center mb-1">
+          <div className="flex items-center text-amber-500 mr-1">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                size={isMobile ? 10 : 14}
+                size={isMobile ? 9 : 12}
                 fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
                 className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300"}
               />
             ))}
           </div>
-          <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-500`}>
+          <span className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-500`}>
             {product.rating.toFixed(1)}
           </span>
         </div>
         
-        <div className="mb-2 md:mb-3">
-          <p className={`${isMobile ? 'text-base' : 'text-xl'} font-bold text-gray-900`}>
+        <div className="mb-1">
+          <p className={`${isMobile ? 'text-sm' : 'text-base'} font-bold text-gray-900`}>
             ${product.price.toFixed(2)}
           </p>
         </div>
@@ -75,10 +75,10 @@ export function ProductCard({ product }: ProductCardProps) {
             addToCart(product);
           }}
           disabled={product.stock === 0}
-          className="w-full text-xs md:text-sm h-8 md:h-10"
+          className="w-full text-xs h-7 md:h-8"
           size={isMobile ? "sm" : "default"}
         >
-          <ShoppingCart className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} mr-1 md:mr-2`} />
+          <ShoppingCart className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} mr-1`} />
           Add to Cart
         </Button>
       </div>
