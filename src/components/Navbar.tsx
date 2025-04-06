@@ -9,13 +9,13 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
@@ -26,7 +26,7 @@ export function Navbar() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const location = useLocation();
-  
+
   const isSignInPage = location.pathname === "/signin";
 
   // Handle click outside search to reset focus state
@@ -46,7 +46,7 @@ export function Navbar() {
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!user?.user_metadata?.full_name) return "U";
-    
+
     const fullName = user.user_metadata.full_name as string;
     const names = fullName.split(' ');
     if (names.length >= 2) {
@@ -70,21 +70,21 @@ export function Navbar() {
         {/* Search and Authentication for desktop */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
-            <div 
+            <div
               className={cn(
-                "relative transition-all duration-300 ease-in-out", 
+                "relative transition-all duration-300 ease-in-out",
                 isSearchFocused ? "w-96" : "w-64"
               )}
             >
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
+              <Input
                 ref={searchInputRef}
-                placeholder="Search products..." 
+                placeholder="Search products..."
                 className="pl-8"
                 onFocus={() => setIsSearchFocused(true)}
               />
             </div>
-            
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -126,14 +126,15 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="ghost" size="icon" asChild className="relative">
-                <Link to="/signin">
+              <Link to="/signin">
+                <Button variant="outline" size="icon" asChild className="relative">
                   <UserCircle className="h-5 w-5" />
                   <span className="sr-only">Sign In</span>
-                </Link>
-              </Button>
+                </Button>
+              </Link>
+
             )}
-            
+
             <Link to="/cart">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
@@ -206,8 +207,8 @@ export function Navbar() {
         <div className="md:hidden px-4 py-2 border-t">
           <div className="relative w-full">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search products..." 
+            <Input
+              placeholder="Search products..."
               className="pl-8 w-full"
             />
           </div>
