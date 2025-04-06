@@ -20,7 +20,7 @@ export function CategoryDisplay() {
   const displayCategories = isMobile ? categories.slice(0, 4) : categories;
 
   return (
-    <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 sticky top-16 z-10 shadow-sm overflow-x-auto">
+    <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 z-10 shadow-sm overflow-x-auto">
       <div className="container">
         <div className="flex gap-3 pb-1 justify-start md:justify-between">
           {displayCategories.map((category) => (
