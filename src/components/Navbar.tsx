@@ -184,7 +184,7 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <Link to="/signin">
-              <Button variant="outline" size="icon" className="relative h-8 w-8">
+              <Button variant="outline" size="icon" className="relative">
                 <UserCircle className="h-5 w-5" />
               </Button>
             </Link>
