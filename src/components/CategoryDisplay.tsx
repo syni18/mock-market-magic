@@ -20,19 +20,19 @@ export function CategoryDisplay() {
   const displayCategories = isMobile ? categories.slice(0, 4) : categories;
 
   return (
-    <div className="py-4 bg-gradient-to-r from-gray-50 to-slate-50 sticky top-16 z-10 shadow-sm">
+    <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 sticky top-16 z-10 shadow-sm overflow-x-auto">
       <div className="container">
-        <div className="flex gap-4 pb-2 justify-center md:justify-between">
+        <div className="flex gap-3 pb-1 justify-start md:justify-between">
           {displayCategories.map((category) => (
             <Link 
               key={category.name}
               to={category.path}
-              className="flex flex-col items-center justify-center text-center p-2 min-w-[60px] hover:text-ecommerce-600 transition-colors"
+              className="flex flex-col items-center justify-center text-center p-1 min-w-[60px] hover:text-ecommerce-600 transition-colors flex-shrink-0"
             >
               <div className="bg-white p-2 rounded-full shadow-sm mb-1 flex items-center justify-center">
-                <category.icon size={isMobile ? 20 : 24} className="text-ecommerce-600" />
+                <category.icon size={isMobile ? 18 : 22} className="text-ecommerce-600" />
               </div>
-              <span className="text-xs font-medium text-gray-700 whitespace-normal text-center w-full">{category.name}</span>
+              <span className="text-xs font-medium text-gray-700 truncate w-full">{category.name}</span>
             </Link>
           ))}
         </div>
