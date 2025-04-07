@@ -6,11 +6,16 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SlidersHorizontal, Search, X } from 'lucide-react';
+import { SlidersHorizontal, Search, X, Filter } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Slider } from '@/components/ui/slider';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,11 +30,25 @@ const Products = () => {
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   
+  // New filter states
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [maxPriceInCategory, setMaxPriceInCategory] = useState(1000);
+  const [ratingFilter, setRatingFilter] = useState('all');
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
   // Load products based on category
   useEffect(() => {
     const newProducts = getProductsByCategory(activeCategory);
     setProducts(newProducts);
     setFilteredProducts(newProducts);
+    
+    // Find the max price in this category for the price slider
+    if (newProducts.length > 0) {
+      const maxPrice = Math.max(...newProducts.map(product => product.price));
+      setMaxPriceInCategory(Math.ceil(maxPrice / 100) * 100); // Round up to nearest 100
+      setPriceRange([0, Math.ceil(maxPrice / 100) * 100]);
+    }
     
     // Update URL when category changes
     if (activeCategory !== 'all') {
@@ -51,6 +70,17 @@ const Products = () => {
       );
     }
     
+    // Apply price range filter
+    result = result.filter(product => 
+      product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+    
+    // Apply rating filter
+    if (ratingFilter !== 'all') {
+      const minRating = parseInt(ratingFilter, 10);
+      result = result.filter(product => Math.floor(product.rating) >= minRating);
+    }
+    
     // Apply sorting
     if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
@@ -61,7 +91,7 @@ const Products = () => {
     }
     
     setFilteredProducts(result);
-  }, [products, searchTerm, sortBy]);
+  }, [products, searchTerm, sortBy, priceRange, ratingFilter]);
   
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
@@ -73,12 +103,16 @@ const Products = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // Search is already applied via useEffect
+    if (isMobile) setIsSearchOpen(false);
   };
 
   const handleClearFilters = () => {
     setActiveCategory('all');
     setSearchTerm('');
     setSortBy('');
+    setPriceRange([0, maxPriceInCategory]);
+    setRatingFilter('all');
+    if (isMobile) setIsFilterSheetOpen(false);
   };
 
   return (
@@ -105,6 +139,34 @@ const Products = () => {
                     Filters
                   </Button>
                   
+                  <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="hidden md:flex">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-0">
+                      <form onSubmit={handleSearch} className="flex">
+                        <Input
+                          type="text"
+                          placeholder="Search products..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        />
+                        <Button 
+                          type="submit" 
+                          variant="default"
+                          size="icon"
+                          className="rounded-l-none"
+                        >
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      </form>
+                    </PopoverContent>
+                  </Popover>
+                  
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Sort by" />
@@ -126,58 +188,118 @@ const Products = () => {
           <div className="flex flex-col md:flex-row gap-4 md:gap-8">
             {/* Filters Sidebar (for desktop) */}
             <div className={`md:w-64 flex-shrink-0 ${!isFiltersVisible && 'hidden md:block'}`}>
-              <div className="bg-white p-4 md:p-6 rounded-lg border shadow-sm">
-                <h3 className="font-medium text-lg mb-4">Categories</h3>
-                <div className="space-y-2">
-                  {categories.map(category => (
-                    <Button
-                      key={category.id}
-                      variant={activeCategory === category.id ? "default" : "ghost"}
-                      className="justify-start w-full"
-                      onClick={() => handleCategoryChange(category.id)}
-                    >
-                      {category.name}
-                    </Button>
-                  ))}
-                </div>
-                
-                <div className="mt-6 md:mt-8">
-                  <h3 className="font-medium text-lg mb-4">Search</h3>
-                  <form onSubmit={handleSearch}>
-                    <div className="flex items-center">
-                      <Input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold flex justify-between items-center">
+                    Filters
+                    {(activeCategory !== 'all' || searchTerm || sortBy !== '' || priceRange[0] > 0 || priceRange[1] < maxPriceInCategory || ratingFilter !== 'all') && (
                       <Button 
-                        type="submit" 
-                        variant="default"
-                        size="icon"
-                        className="rounded-l-none"
+                        variant="ghost" 
+                        size="sm"
+                        onClick={handleClearFilters}
+                        className="h-8 text-xs"
                       >
-                        <Search className="h-4 w-4" />
+                        <X className="h-3 w-3 mr-1" />
+                        Clear all
                       </Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="font-medium mb-3">Categories</h3>
+                    <div className="space-y-2">
+                      {categories.map(category => (
+                        <Button
+                          key={category.id}
+                          variant={activeCategory === category.id ? "default" : "ghost"}
+                          className="justify-start w-full"
+                          onClick={() => handleCategoryChange(category.id)}
+                        >
+                          {category.name}
+                        </Button>
+                      ))}
                     </div>
-                  </form>
-                </div>
-                
-                {(activeCategory !== 'all' || searchTerm || sortBy) && (
-                  <div className="mt-6">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleClearFilters}
-                      size="sm"
-                      className="w-full"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Clear Filters
-                    </Button>
                   </div>
-                )}
-              </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-3">Price Range</h3>
+                    <div className="px-2">
+                      <Slider
+                        defaultValue={[0, maxPriceInCategory]}
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        max={maxPriceInCategory}
+                        step={10}
+                        className="mb-6"
+                      />
+                      <div className="flex justify-between items-center text-sm">
+                        <span>${priceRange[0]}</span>
+                        <span>to</span>
+                        <span>${priceRange[1]}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-3">Rating</h3>
+                    <RadioGroup value={ratingFilter} onValueChange={setRatingFilter}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="all" />
+                        <label htmlFor="all" className="text-sm">All Ratings</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="4" id="4-plus" />
+                        <label htmlFor="4-plus" className="text-sm">4★ & Above</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="3" id="3-plus" />
+                        <label htmlFor="3-plus" className="text-sm">3★ & Above</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="2" id="2-plus" />
+                        <label htmlFor="2-plus" className="text-sm">2★ & Above</label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
+                  <div>
+                    <Collapsible 
+                      open={isCollapsibleOpen} 
+                      onOpenChange={setIsCollapsibleOpen}
+                      className="space-y-3"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex w-full justify-between">
+                          <span>Search Products</span>
+                          <span>{isCollapsibleOpen ? '−' : '+'}</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <form onSubmit={handleSearch} className="mt-3">
+                          <div className="flex items-center">
+                            <Input
+                              type="text"
+                              placeholder="Search products..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                            <Button 
+                              type="submit" 
+                              variant="default"
+                              size="icon"
+                              className="rounded-l-none"
+                            >
+                              <Search className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </form>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
             
             {/* Product Grid */}
@@ -209,12 +331,26 @@ const Products = () => {
             <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="flex-1 mr-2">
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="h-[85vh] py-6 px-4">
                 <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-lg">Filters</h3>
+                    {(activeCategory !== 'all' || searchTerm || sortBy !== '' || priceRange[0] > 0 || priceRange[1] < maxPriceInCategory || ratingFilter !== 'all') && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleClearFilters}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
+
                   <div>
                     <h3 className="font-medium text-lg mb-3">Categories</h3>
                     <div className="space-y-2">
@@ -231,9 +367,50 @@ const Products = () => {
                     </div>
                   </div>
                   
+                  <div className="py-2">
+                    <h3 className="font-medium text-lg mb-3">Price Range</h3>
+                    <div className="px-2">
+                      <Slider
+                        defaultValue={[0, maxPriceInCategory]}
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        max={maxPriceInCategory}
+                        step={10}
+                        className="mb-6"
+                      />
+                      <div className="flex justify-between items-center text-sm">
+                        <span>${priceRange[0]}</span>
+                        <span>to</span>
+                        <span>${priceRange[1]}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Rating</h3>
+                    <RadioGroup value={ratingFilter} onValueChange={setRatingFilter}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="m-all" />
+                        <label htmlFor="m-all" className="text-sm">All Ratings</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="4" id="m-4-plus" />
+                        <label htmlFor="m-4-plus" className="text-sm">4★ & Above</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="3" id="m-3-plus" />
+                        <label htmlFor="m-3-plus" className="text-sm">3★ & Above</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="2" id="m-2-plus" />
+                        <label htmlFor="m-2-plus" className="text-sm">2★ & Above</label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
                   <div>
                     <h3 className="font-medium text-lg mb-3">Search</h3>
-                    <div className="flex items-center">
+                    <form onSubmit={handleSearch} className="flex items-center">
                       <Input
                         type="text"
                         placeholder="Search products..."
@@ -242,6 +419,7 @@ const Products = () => {
                         className="rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       />
                       <Button 
+                        type="submit" 
                         variant="default"
                         size="icon"
                         className="rounded-l-none"
@@ -251,22 +429,15 @@ const Products = () => {
                       >
                         <Search className="h-4 w-4" />
                       </Button>
-                    </div>
+                    </form>
                   </div>
                   
-                  {(activeCategory !== 'all' || searchTerm || sortBy) && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        handleClearFilters();
-                        setIsFilterSheetOpen(false);
-                      }}
-                      className="w-full"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Clear Filters
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => setIsFilterSheetOpen(false)} 
+                    className="w-full mt-4"
+                  >
+                    Apply Filters
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
