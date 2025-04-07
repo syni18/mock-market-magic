@@ -5,12 +5,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 // Define the categories with their icons and paths
 const categories = [
-  { name: "Electronics", icon: Smartphone, path: "/products?category=electronics" },
-  { name: "Home Decor", icon: Home, path: "/products?category=home" },
-  { name: "Kitchen", icon: Utensils, path: "/products?category=kitchen" },
-  { name: "Computers", icon: Laptop, path: "/products?category=computers" },
-  { name: "Fashion", icon: Shirt, path: "/products?category=fashion" },
-  { name: "Gifts", icon: Gift, path: "/products?category=gifts" },
+  { name: "Electronics", icon: Smartphone, path: "/category/electronics" },
+  { name: "Home Decor", icon: Home, path: "/category/home" },
+  { name: "Kitchen", icon: Utensils, path: "/category/kitchen" },
+  { name: "Computers", icon: Laptop, path: "/category/computers" },
+  { name: "Fashion", icon: Shirt, path: "/category/fashion" },
+  { name: "Gifts", icon: Gift, path: "/category/gifts" },
 ];
 
 export function CategoryDisplay() {
@@ -20,7 +20,7 @@ export function CategoryDisplay() {
   const displayCategories = isMobile ? categories.slice(0, 4) : categories;
 
   return (
-    <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 z-10 shadow-sm overflow-x-auto">
+    <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 z-10 shadow-sm overflow-x-auto sticky top-16">
       <div className="container">
         <div className="flex gap-3 justify-around md:justify-between">
           {displayCategories.map((category) => (

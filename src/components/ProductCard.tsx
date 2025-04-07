@@ -2,9 +2,12 @@
 import { Link } from 'react-router-dom';
 import { Product } from '@/data/products';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -12,11 +15,26 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
+  
+  const inWishlist = isInWishlist(product.id);
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (inWishlist) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
 
   return (
     <div className="group bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300">
-      <Link to={`/products/${product.id}`} className="block overflow-hidden">
+      <Link to={`/products/${product.id}`} className="block overflow-hidden relative">
         <div className="aspect-square overflow-hidden">
           <img 
             src={product.image} 
@@ -24,6 +42,19 @@ export function ProductCard({ product }: ProductCardProps) {
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
+        
+        {/* Wishlist button */}
+        <button 
+          onClick={handleWishlistToggle}
+          className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100"
+        >
+          <Heart 
+            className={cn(
+              "h-4 w-4 md:h-5 md:w-5", 
+              inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"
+            )} 
+          />
+        </button>
       </Link>
       
       <div className="p-3 md:p-4">

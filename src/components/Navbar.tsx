@@ -1,10 +1,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, UserCircle, LogOut } from 'lucide-react';
+import { ShoppingCart, Search, UserCircle, LogOut, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,6 +23,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
@@ -80,7 +82,7 @@ export function Navbar() {
               <Input
                 ref={searchInputRef}
                 placeholder="Search products..."
-                className="pl-8"
+                className="pl-8 focus:outline-none"
                 onFocus={() => setIsSearchFocused(true)}
               />
             </div>
@@ -114,6 +116,11 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link to="/wishlist" className="cursor-pointer w-full">
+                      Wishlist
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/settings" className="cursor-pointer w-full">
                       Settings
                     </Link>
@@ -132,7 +139,19 @@ export function Navbar() {
                   <span className="sr-only">Sign In</span>
                 </Button>
               </Link>
+            )}
 
+            {user && (
+              <Link to="/wishlist">
+                <Button variant="outline" size="icon" className="relative">
+                  <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
             )}
 
             <Link to="/cart">
@@ -176,6 +195,11 @@ export function Navbar() {
                     Orders
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/wishlist" className="cursor-pointer w-full">
+                    Wishlist
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
@@ -189,6 +213,20 @@ export function Navbar() {
               </Button>
             </Link>
           )}
+
+          {user && (
+            <Link to="/wishlist" className="relative">
+              <Button variant="outline" size="icon">
+                <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          )}
+
           <Link to="/cart" className="relative">
             <Button variant="outline" size="icon">
               <ShoppingCart className="h-5 w-5" />
@@ -209,7 +247,7 @@ export function Navbar() {
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search products..."
-              className="pl-8 w-full"
+              className="pl-8 w-full focus:outline-none"
             />
           </div>
         </div>

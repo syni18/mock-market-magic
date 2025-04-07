@@ -1,15 +1,17 @@
 
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, getProductsByCategory, Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductCard } from '@/components/ProductCard';
-import { MinusCircle, PlusCircle, ShoppingCart, Star, ChevronRight } from 'lucide-react';
+import { MinusCircle, PlusCircle, ShoppingCart, Star, ChevronRight, Heart } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { cn } from '@/lib/utils';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +19,8 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (id) {
@@ -51,6 +55,23 @@ const ProductDetail = () => {
     }
   };
 
+  const handleBuyNow = () => {
+    if (product) {
+      addToCart(product, quantity);
+      navigate('/cart');
+    }
+  };
+
+  const handleWishlistToggle = () => {
+    if (!product) return;
+    
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -62,6 +83,8 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  const inWishlist = isInWishlist(product.id);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,7 +118,22 @@ const ProductDetail = () => {
 
             {/* Product Info */}
             <div>
-              <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+              <div className="flex justify-between items-start">
+                <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={handleWishlistToggle}
+                >
+                  <Heart 
+                    className={cn(
+                      "h-5 w-5", 
+                      inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"
+                    )} 
+                  />
+                </Button>
+              </div>
               
               <div className="flex items-center mb-4">
                 <div className="flex items-center text-amber-500 mr-2">
@@ -180,6 +218,8 @@ const ProductDetail = () => {
                   size="lg"
                   variant="secondary"
                   className="flex-1"
+                  onClick={handleBuyNow}
+                  disabled={product.stock === 0}
                 >
                   Buy Now
                 </Button>
@@ -261,7 +301,7 @@ const ProductDetail = () => {
           {relatedProducts.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold mb-6">Related Products</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {relatedProducts.map(relatedProduct => (
                   <ProductCard key={relatedProduct.id} product={relatedProduct} />
                 ))}
