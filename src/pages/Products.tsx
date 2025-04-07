@@ -96,7 +96,7 @@ const Products = () => {
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Most Relevant</SelectItem>
+                    <SelectItem value="most-relevant">Most Relevant</SelectItem>
                     <SelectItem value="price-asc">Price: Low to High</SelectItem>
                     <SelectItem value="price-desc">Price: High to Low</SelectItem>
                     <SelectItem value="rating">Highest Rated</SelectItem>
