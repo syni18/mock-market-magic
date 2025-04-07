@@ -22,7 +22,7 @@ export function CategoryDisplay() {
   return (
     <div className="py-3 bg-gradient-to-r from-gray-50 to-slate-50 z-10 shadow-sm overflow-x-auto">
       <div className="container">
-        <div className="flex gap-3 pb-1 justify-start md:justify-between">
+        <div className="flex gap-3 justify-around md:justify-between">
           {displayCategories.map((category) => (
             <Link 
               key={category.name}
