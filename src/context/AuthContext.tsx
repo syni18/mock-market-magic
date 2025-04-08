@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type AuthContextType = {
   user: User | null;
@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Initialize auth and set up listeners
   useEffect(() => {
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
+            console.log('Auth state changed:', event);
             setSession(session);
             setUser(session?.user ?? null);
             setIsAuthenticated(!!session);
@@ -62,6 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (session?.user) {
               // Sync user profile on sign in
               await syncUserProfile(session.user);
+              
+              // If it's a sign in event, navigate to home page
+              if (event === 'SIGNED_IN') {
+                toast({
+                  title: "Welcome!",
+                  description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
+                });
+                navigate('/');
+              }
             }
             
             setIsLoading(false);
@@ -81,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     
     setupAuth();
-  }, []);
+  }, [navigate, toast]);
 
   // Helper function to sync user data with profiles table
   const syncUserProfile = async (user: User) => {
