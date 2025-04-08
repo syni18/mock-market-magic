@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 type AuthContextType = {
   user: User | null;
@@ -13,6 +14,8 @@ type AuthContextType = {
   verifyOtp: (phone: string, token: string) => Promise<{error: Error | null}>;
   signUp: (email: string, password: string, userData?: Record<string, any>) => Promise<{error: Error | null, user: User | null}>;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<{error: Error | null}>;
+  isAuthenticated: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,60 +24,155 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
+  // Initialize auth and set up listeners
   useEffect(() => {
     const setupAuth = async () => {
       setIsLoading(true);
       
-      // Check active session
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error.message);
-        setIsLoading(false);
-        return;
-      }
-      
-      if (session) {
-        setSession(session);
-        setUser(session.user);
-      }
-      
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          setSession(session);
-          setUser(session?.user ?? null);
+      try {
+        // Check for active session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error.message);
           setIsLoading(false);
+          return;
         }
-      );
-      
-      setIsLoading(false);
-      
-      // Cleanup subscription
-      return () => {
-        subscription.unsubscribe();
-      };
+        
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+          setIsAuthenticated(true);
+          
+          // Sync user data with profiles table
+          await syncUserProfile(session.user);
+        }
+        
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            setIsAuthenticated(!!session);
+            
+            if (session?.user) {
+              // Sync user profile on sign in
+              await syncUserProfile(session.user);
+            }
+            
+            setIsLoading(false);
+          }
+        );
+        
+        setIsLoading(false);
+        
+        // Cleanup subscription
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Auth setup error:', error);
+        setIsLoading(false);
+      }
     };
     
     setupAuth();
   }, []);
+
+  // Helper function to sync user data with profiles table
+  const syncUserProfile = async (user: User) => {
+    if (!user) return;
+    
+    try {
+      // Check if user profile exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (existingProfile) {
+        // Update existing profile with latest user data
+        await supabase
+          .from('profiles')
+          .update({
+            email: user.email,
+            full_name: user.user_metadata?.full_name || existingProfile.full_name,
+            avatar_url: user.user_metadata?.avatar_url || existingProfile.avatar_url,
+            phone: user.phone || existingProfile.phone,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id);
+      } else {
+        // Create new profile
+        await supabase
+          .from('profiles')
+          .insert([{
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null,
+            avatar_url: user.user_metadata?.avatar_url || null,
+            phone: user.phone || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }]);
+      }
+    } catch (error) {
+      console.error('Error syncing user profile:', error);
+    }
+  };
 
   // Sign in with email
   const signIn = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
       toast({
         title: "Welcome back!",
         description: "You've been successfully signed in.",
       });
+      
+      // Redirect to home page after successful sign in
+      navigate('/');
+      
       return { error: null };
     } catch (error) {
       console.error('Sign in error:', error);
       toast({
         title: "Sign in failed",
+        description: error instanceof Error ? error.message : "Something went wrong.",
+        variant: "destructive",
+      });
+      return { error: error as Error };
+    }
+  };
+
+  // Sign in with Google
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+      
+      if (error) throw error;
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      toast({
+        title: "Google sign in failed",
         description: error instanceof Error ? error.message : "Something went wrong.",
         variant: "destructive",
       });
@@ -112,6 +210,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Successfully verified",
         description: "Your phone number has been verified.",
       });
+      
+      // Redirect to home page after successful verification
+      navigate('/');
+      
       return { error: null };
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -162,6 +264,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
+      
+      // Redirect to sign in page after sign out
+      navigate('/signin');
     } catch (error) {
       console.error('Sign out error:', error);
       toast({
@@ -181,6 +286,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     verifyOtp,
     signUp,
     signOut,
+    signInWithGoogle,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

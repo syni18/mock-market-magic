@@ -1,5 +1,5 @@
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Product } from '@/data/products';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Star, Heart } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   product: Product;
@@ -16,8 +17,10 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   const inWishlist = isInWishlist(product.id);
   const isOutOfStock = product.stock === 0;
@@ -25,6 +28,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to add items to your wishlist",
+      });
+      navigate('/signin');
+      return;
+    }
     
     if (inWishlist) {
       removeFromWishlist(product.id);
@@ -105,9 +117,20 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button 
             onClick={(e) => {
               e.preventDefault();
-              if (!isOutOfStock) {
-                addToCart(product);
+              if (isOutOfStock) {
+                return;
               }
+              
+              if (!isAuthenticated) {
+                toast({
+                  title: "Authentication required",
+                  description: "Please sign in to add items to your cart",
+                });
+                navigate('/signin');
+                return;
+              }
+              
+              addToCart(product);
             }}
             disabled={isOutOfStock}
             className="w-full text-xs md:text-sm h-8 md:h-10"

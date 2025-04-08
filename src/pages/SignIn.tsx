@@ -9,9 +9,8 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { createUserProfile } from '@/services/userService';
-import { supabase } from '@/lib/supabase';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 // Validation schemas
 const signInSchema = z.object({
@@ -43,7 +42,14 @@ const SignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isPhoneLogin, setIsPhoneLogin] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signUp, signInWithPhone, verifyOtp } = useAuth();
+  const { signIn, signUp, signInWithPhone, verifyOtp, signInWithGoogle, isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Form handlers
   const signInForm = useForm<z.infer<typeof signInSchema>>({
@@ -80,10 +86,7 @@ const SignIn = () => {
 
   // Handle email sign in
   const handleEmailSignIn = async (values: z.infer<typeof signInSchema>) => {
-    const { error } = await signIn(values.email, values.password);
-    if (!error) {
-      navigate('/');
-    }
+    await signIn(values.email, values.password);
   };
 
   // Handle sign up
@@ -94,14 +97,6 @@ const SignIn = () => {
     const { error, user } = await signUp(email, password, userData);
     
     if (!error && user) {
-      // Create user profile in the profiles table
-      await createUserProfile({
-        id: user.id,
-        email: user.email,
-        full_name: fullName,
-        created_at: new Date().toISOString(),
-      });
-      
       setIsSignIn(true);
     }
   };
@@ -118,23 +113,12 @@ const SignIn = () => {
 
   // Handle OTP verification
   const handleVerifyOtp = async (values: z.infer<typeof otpSchema>) => {
-    const { error } = await verifyOtp(phoneNumber, values.code);
-    if (!error) {
-      navigate('/');
-    }
+    await verifyOtp(phoneNumber, values.code);
   };
 
+  // Handle Google sign in
   const handleGoogleSignIn = async () => {
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        }
-      });
-    } catch (error) {
-      console.error('Google sign in error:', error);
-    }
+    await signInWithGoogle();
   };
 
   return (
