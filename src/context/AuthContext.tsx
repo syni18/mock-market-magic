@@ -168,8 +168,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with Google
   const signInWithGoogle = async () => {
     try {
-      // Set up redirect URL explicitly using the current window location origin
-      const redirectTo = window.location.origin;
+      // Get the current window location origin for the redirect URL
+      const redirectTo = `${window.location.origin}`;
       console.log("Setting redirect URL to:", redirectTo);
 
       const { error } = await supabase.auth.signInWithOAuth({

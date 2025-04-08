@@ -17,8 +17,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
     flowType: 'pkce',
-    // Ensure redirect URL matches the current window location
-    redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
   }
 });
 
