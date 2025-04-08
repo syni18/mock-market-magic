@@ -71,7 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   title: "Welcome!",
                   description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
                 });
-                navigate('/');
+                
+                // Navigate to home page
+                navigate("/");
               }
             }
             
@@ -166,10 +168,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with Google
   const signInWithGoogle = async () => {
     try {
+      // Set up redirect URL explicitly using the current window location origin
+      const redirectTo = window.location.origin;
+      console.log("Setting redirect URL to:", redirectTo);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

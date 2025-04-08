@@ -16,8 +16,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // Correctly handle the hash fragment in the URL for OAuth redirects
     flowType: 'pkce',
+    // Ensure redirect URL matches the current window location
+    redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
   }
 });
 
