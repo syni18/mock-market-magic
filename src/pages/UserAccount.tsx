@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/ProfileCard';
@@ -7,24 +7,44 @@ import { OrdersList } from '@/components/OrdersList';
 import { UserSettings } from '@/components/UserSettings';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Package, Heart, Settings } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Toaster } from '@/components/ui/toaster';
 import { useWishlist } from '@/context/WishlistContext';
+import { WishlistTab } from '@/components/WishlistTab';
 
 const UserAccount = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const { items: wishlistItems } = useWishlist();
-  const [activeTab, setActiveTab] = useState('profile');
+  
+  // Get the tab from URL query parameter
+  const queryParams = new URLSearchParams(location.search);
+  const tabFromUrl = queryParams.get('tab');
+  
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile');
+  
+  // Update active tab when URL changes
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   // Redirect to login if not authenticated
   if (!user) {
     navigate('/signin');
     return null;
   }
+
+  // Update URL when tab changes
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    navigate(`/account?tab=${tabId}`);
+  };
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -40,7 +60,7 @@ const UserAccount = () => {
       case 'orders':
         return <OrdersList />;
       case 'wishlist':
-        return <Button onClick={() => navigate('/wishlist')} className="bg-indigo-600 hover:bg-indigo-700">Go to Wishlist</Button>;
+        return <WishlistTab />;
       case 'settings':
         return <UserSettings />;
       default:
@@ -57,30 +77,9 @@ const UserAccount = () => {
         <h1 className="text-3xl font-bold mb-8 text-slate-800">My Account</h1>
         
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar / Tab Navigation */}
-          <div className={`w-full ${isMobile ? 'mb-6' : 'lg:w-64 shrink-0'}`}>
-            {isMobile ? (
-              <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
-                {tabs.map((tab) => (
-                  <Button
-                    key={tab.id}
-                    variant={activeTab === tab.id ? "default" : "outline"}
-                    className={`flex items-center gap-2 shrink-0 ${
-                      activeTab === tab.id ? "bg-indigo-600 hover:bg-indigo-700" : "border-slate-200"
-                    }`}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    <tab.icon className="h-4 w-4" />
-                    {tab.label}
-                    {tab.badge ? (
-                      <span className="ml-1 text-xs bg-white text-indigo-600 rounded-full h-5 w-5 flex items-center justify-center">
-                        {tab.badge}
-                      </span>
-                    ) : null}
-                  </Button>
-                ))}
-              </div>
-            ) : (
+          {/* Sidebar / Tab Navigation - Hidden on mobile */}
+          {!isMobile && (
+            <div className="lg:w-64 shrink-0">
               <div className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
                 {tabs.map((tab, index) => (
                   <div key={tab.id}>
@@ -91,7 +90,7 @@ const UserAccount = () => {
                           ? "bg-indigo-50 text-indigo-700 font-medium"
                           : "text-slate-700 hover:bg-slate-50"
                       }`}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabChange(tab.id)}
                     >
                       <tab.icon className="h-4 w-4 mr-3" />
                       {tab.label}
@@ -105,8 +104,34 @@ const UserAccount = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+          
+          {/* Mobile Tab Navigation */}
+          {isMobile && (
+            <div className="mb-6">
+              <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
+                {tabs.map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={activeTab === tab.id ? "default" : "outline"}
+                    className={`flex items-center gap-2 shrink-0 ${
+                      activeTab === tab.id ? "bg-indigo-600 hover:bg-indigo-700" : "border-slate-200"
+                    }`}
+                    onClick={() => handleTabChange(tab.id)}
+                  >
+                    <tab.icon className="h-4 w-4" />
+                    {tab.label}
+                    {tab.badge ? (
+                      <span className="ml-1 text-xs bg-white text-indigo-600 rounded-full h-5 w-5 flex items-center justify-center">
+                        {tab.badge}
+                      </span>
+                    ) : null}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Main Content */}
           <div className="flex-grow">

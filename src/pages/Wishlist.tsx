@@ -28,6 +28,15 @@ const Wishlist = () => {
     setTimeout(() => setLoading(false), 300);
   }, [user, navigate]);
 
+  // Function to handle adding to cart and removing from wishlist
+  const handleAddToCart = (productId: number) => {
+    const product = items.find(item => item.id === productId);
+    if (product) {
+      addToCart(product);
+      removeFromWishlist(productId);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -152,7 +161,7 @@ const Wishlist = () => {
                         <Button 
                           size="sm"
                           className="flex-1 h-8 bg-indigo-600 hover:bg-indigo-700 text-xs"
-                          onClick={() => addToCart(product)}
+                          onClick={() => handleAddToCart(product.id)}
                           disabled={product.stock === 0}
                         >
                           <ShoppingCart className="h-3.5 w-3.5 mr-1" />
@@ -213,7 +222,7 @@ const Wishlist = () => {
                       <div className="mt-auto flex gap-2">
                         <Button 
                           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-sm h-10"
-                          onClick={() => addToCart(product)}
+                          onClick={() => handleAddToCart(product.id)}
                           disabled={product.stock === 0}
                         >
                           <ShoppingCart className="h-4 w-4 mr-2" />
@@ -232,18 +241,6 @@ const Wishlist = () => {
                 )}
               </div>
             ))}
-          </div>
-        )}
-        
-        {isMobile && items.length > 0 && (
-          <div className="mt-6 flex justify-center">
-            <Button
-              className="bg-indigo-600 hover:bg-indigo-700"
-              onClick={() => navigate('/products')}
-            >
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Continue Shopping
-            </Button>
           </div>
         )}
       </main>

@@ -106,22 +106,22 @@ export function Navbar() {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer w-full">
+                    <Link to="/account" className="cursor-pointer w-full">
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/orders" className="cursor-pointer w-full">
+                    <Link to="/account?tab=orders" className="cursor-pointer w-full">
                       Orders
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/wishlist" className="cursor-pointer w-full">
+                    <Link to="/account?tab=wishlist" className="cursor-pointer w-full">
                       Wishlist
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/settings" className="cursor-pointer w-full">
+                    <Link to="/account?tab=settings" className="cursor-pointer w-full">
                       Settings
                     </Link>
                   </DropdownMenuItem>
@@ -186,18 +186,23 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link to="/profile" className="cursor-pointer w-full">
+                  <Link to="/account" className="cursor-pointer w-full">
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/orders" className="cursor-pointer w-full">
+                  <Link to="/account?tab=orders" className="cursor-pointer w-full">
                     Orders
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/wishlist" className="cursor-pointer w-full">
+                  <Link to="/account?tab=wishlist" className="cursor-pointer w-full">
                     Wishlist
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/account?tab=settings" className="cursor-pointer w-full">
+                    Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
@@ -215,7 +220,7 @@ export function Navbar() {
           )}
 
           {user && (
-            <Link to="/wishlist" className="relative">
+            <Link to="/account?tab=wishlist" className="relative">
               <Button variant="outline" size="icon">
                 <Heart className="h-5 w-5" />
                 {wishlistCount > 0 && (
