@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,28 +20,7 @@ interface Address {
 
 export function ManageAddressTab() {
   const { toast } = useToast();
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: '1',
-      name: 'Home',
-      street: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
-      country: 'USA',
-      isDefault: true
-    },
-    {
-      id: '2',
-      name: 'Work',
-      street: '456 Business Ave',
-      city: 'San Francisco',
-      state: 'CA',
-      zipCode: '94103',
-      country: 'USA',
-      isDefault: false
-    }
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState<string | null>(null);
@@ -54,6 +33,19 @@ export function ManageAddressTab() {
     country: '',
     isDefault: false
   });
+  
+  // Load addresses from localStorage on component mount
+  useEffect(() => {
+    const savedAddresses = localStorage.getItem('userAddresses');
+    if (savedAddresses) {
+      setAddresses(JSON.parse(savedAddresses));
+    }
+  }, []);
+  
+  // Save addresses to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('userAddresses', JSON.stringify(addresses));
+  }, [addresses]);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,7 +59,7 @@ export function ManageAddressTab() {
         prev.map(addr => 
           addr.id === isEditingAddress 
             ? { ...newAddress, id: addr.id }
-            : addr
+            : newAddress.isDefault ? { ...addr, isDefault: false } : addr
         )
       );
       setIsEditingAddress(null);
@@ -78,7 +70,15 @@ export function ManageAddressTab() {
     } else {
       // Create new address
       const id = Date.now().toString();
-      setAddresses(prev => [...prev, { ...newAddress, id }]);
+      
+      // If this is the first address or is set as default
+      if (addresses.length === 0 || newAddress.isDefault) {
+        setAddresses(prev => 
+          prev.map(addr => ({ ...addr, isDefault: false }))
+        );
+      }
+      
+      setAddresses(prev => [...prev, { ...newAddress, id, isDefault: newAddress.isDefault || prev.length === 0 }]);
       toast({
         title: "Address added",
         description: "Your new address has been added successfully."
@@ -104,7 +104,21 @@ export function ManageAddressTab() {
   };
 
   const deleteAddress = (id: string) => {
-    setAddresses(prev => prev.filter(addr => addr.id !== id));
+    const addressToDelete = addresses.find(addr => addr.id === id);
+    setAddresses(prev => {
+      const filteredAddresses = prev.filter(addr => addr.id !== id);
+      
+      // If we're deleting the default address and there are other addresses,
+      // set the first remaining address as default
+      if (addressToDelete?.isDefault && filteredAddresses.length > 0) {
+        return filteredAddresses.map((addr, index) => 
+          index === 0 ? { ...addr, isDefault: true } : addr
+        );
+      }
+      
+      return filteredAddresses;
+    });
+    
     toast({
       title: "Address deleted",
       description: "Your address has been removed successfully."
@@ -126,22 +140,73 @@ export function ManageAddressTab() {
 
   const detectLocation = () => {
     if (navigator.geolocation) {
+      toast({
+        title: "Detecting location",
+        description: "Please allow location access to auto-fill your address."
+      });
+      
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // In a real app, you would use reverse geocoding API to get the address
-          // For now, just show a success message
-          toast({
-            title: "Location detected",
-            description: "Your location has been detected. Please fill in the remaining details."
-          });
+        async (position) => {
+          try {
+            // Use reverse geocoding API to get the address from coordinates
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            );
+            
+            if (!response.ok) {
+              throw new Error('Failed to fetch address information');
+            }
+            
+            const data = await response.json();
+            const address = data.address;
+            
+            // Update the form with the geocoded information
+            setNewAddress(prev => ({
+              ...prev,
+              street: address.road || address.street || '',
+              city: address.city || address.town || address.village || '',
+              state: address.state || address.county || '',
+              zipCode: address.postcode || '',
+              country: address.country || '',
+            }));
+            
+            toast({
+              title: "Location detected",
+              description: "Your address has been auto-filled based on your location."
+            });
+          } catch (error) {
+            console.error("Error getting address from coordinates:", error);
+            toast({
+              title: "Could not complete address lookup",
+              description: "Got your location, but couldn't convert to an address. Please fill in manually.",
+              variant: "destructive"
+            });
+          }
         },
         (error) => {
+          console.error("Geolocation error:", error);
+          let errorMessage = "Could not detect your location.";
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage += " Location access was denied.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage += " Location information is unavailable.";
+              break;
+            case error.TIMEOUT:
+              errorMessage += " Location request timed out.";
+              break;
+          }
+          
           toast({
             title: "Error",
-            description: "Could not detect your location. " + error.message,
+            description: errorMessage,
             variant: "destructive"
           });
-        }
+        },
+        { timeout: 10000, enableHighAccuracy: true }
       );
     } else {
       toast({
@@ -155,12 +220,12 @@ export function ManageAddressTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
           <MapPin className="mr-2 text-indigo-600" />
           Manage Addresses
         </h2>
         <Button 
-          className="bg-indigo-600 hover:bg-indigo-700"
+          className="bg-indigo-600 hover:bg-indigo-700 text-sm md:text-base"
           onClick={() => {
             setIsAddingAddress(true);
             setIsEditingAddress(null);
@@ -181,13 +246,13 @@ export function ManageAddressTab() {
       </div>
       
       {addresses.length === 0 && !isAddingAddress && (
-        <Card className="bg-white shadow-sm border-slate-100 p-8 text-center">
-          <div className="text-center py-8">
+        <Card className="bg-white shadow-sm border-slate-100 p-4 md:p-8 text-center">
+          <div className="text-center py-6 md:py-8">
             <div className="inline-flex justify-center items-center p-4 bg-indigo-50 rounded-full mb-6">
               <MapPinOff className="h-8 w-8 text-indigo-600" />
             </div>
-            <h3 className="text-xl font-bold mb-2">No addresses saved yet</h3>
-            <p className="text-gray-500 mb-6">Add your first address to make checkout faster</p>
+            <h3 className="text-lg md:text-xl font-bold mb-2">No addresses saved yet</h3>
+            <p className="text-gray-500 mb-6 text-sm md:text-base">Add your first address to make checkout faster</p>
             <Button 
               onClick={() => setIsAddingAddress(true)}
               className="bg-indigo-600 hover:bg-indigo-700"
@@ -330,18 +395,18 @@ export function ManageAddressTab() {
                     <MapPin className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" />
                     <div>
                       <div className="flex items-center">
-                        <h3 className="font-semibold">{address.name}</h3>
+                        <h3 className="font-semibold text-sm md:text-base">{address.name}</h3>
                         {address.isDefault && (
                           <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{address.street}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs md:text-sm text-gray-600 mt-1">{address.street}</p>
+                      <p className="text-xs md:text-sm text-gray-600">
                         {address.city}, {address.state} {address.zipCode}
                       </p>
-                      <p className="text-sm text-gray-600">{address.country}</p>
+                      <p className="text-xs md:text-sm text-gray-600">{address.country}</p>
                     </div>
                   </div>
                 </div>
@@ -352,7 +417,7 @@ export function ManageAddressTab() {
                       variant="outline"
                       size="sm"
                       onClick={() => setDefaultAddress(address.id)}
-                      className="text-indigo-600 hover:bg-indigo-50 border-indigo-200"
+                      className="text-indigo-600 hover:bg-indigo-50 border-indigo-200 text-xs md:text-sm"
                     >
                       Set as Default
                     </Button>
@@ -361,7 +426,7 @@ export function ManageAddressTab() {
                     variant="outline"
                     size="sm"
                     onClick={() => editAddress(address)}
-                    className="text-slate-700 hover:bg-slate-50"
+                    className="text-slate-700 hover:bg-slate-50 text-xs md:text-sm"
                   >
                     <Edit2 className="h-4 w-4 mr-1" />
                     Edit
@@ -371,7 +436,7 @@ export function ManageAddressTab() {
                     size="sm"
                     onClick={() => deleteAddress(address.id)}
                     disabled={address.isDefault}
-                    className={`${address.isDefault ? 'text-slate-400' : 'text-red-500 hover:bg-red-50 border-red-200'}`}
+                    className={`text-xs md:text-sm ${address.isDefault ? 'text-slate-400' : 'text-red-500 hover:bg-red-50 border-red-200'}`}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete

@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,23 @@ export const ProfileCard = () => {
     dob: user?.user_metadata?.dob || '',
     website: user?.user_metadata?.website || '',
   });
+
+  // Get default address from localStorage
+  useEffect(() => {
+    const savedAddresses = JSON.parse(localStorage.getItem('userAddresses') || '[]');
+    const defaultAddress = savedAddresses.find((addr: any) => addr.isDefault);
+    
+    if (defaultAddress) {
+      setFormData(prev => ({
+        ...prev,
+        address: defaultAddress.street,
+        city: defaultAddress.city,
+        state: defaultAddress.state,
+        zipCode: defaultAddress.zipCode,
+        country: defaultAddress.country,
+      }));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -144,6 +144,16 @@ export function PaymentMethodsTab() {
       });
     }
     
+    // Store in localStorage for persistence
+    setTimeout(() => {
+      const savedCards = paymentMethods.map(card => ({
+        ...card,
+        // We don't want to store full card numbers in localStorage
+        // Just a safety measure even though we're not storing them anyway in this demo
+      }));
+      localStorage.setItem('paymentMethods', JSON.stringify(savedCards));
+    }, 100);
+    
     resetCardForm();
   };
 
@@ -163,24 +173,30 @@ export function PaymentMethodsTab() {
 
   const deleteCard = (id: string) => {
     const cardToDelete = paymentMethods.find(card => card.id === id);
-    if (cardToDelete?.isDefault && paymentMethods.length > 1) {
-      // If deleting default card, make another card the default
-      const newDefault = paymentMethods.find(card => card.id !== id);
-      if (newDefault) {
-        setPaymentMethods(prev => 
-          prev.map(card => 
-            card.id === newDefault.id ? { ...card, isDefault: true } : card
-          ).filter(card => card.id !== id)
+    setPaymentMethods(prev => {
+      const filteredCards = prev.filter(card => card.id !== id);
+      
+      // If we're deleting the default card and there are other cards,
+      // set the first remaining card as default
+      if (cardToDelete?.isDefault && filteredCards.length > 0) {
+        return filteredCards.map((card, index) => 
+          index === 0 ? { ...card, isDefault: true } : card
         );
       }
-    } else {
-      setPaymentMethods(prev => prev.filter(card => card.id !== id));
-    }
+      
+      return filteredCards;
+    });
     
     toast({
       title: "Card removed",
       description: "Your payment method has been removed."
     });
+    
+    // Update localStorage
+    setTimeout(() => {
+      const updatedMethods = paymentMethods.filter(card => card.id !== id);
+      localStorage.setItem('paymentMethods', JSON.stringify(updatedMethods));
+    }, 100);
   };
 
   const setDefaultCard = (id: string) => {
@@ -195,6 +211,15 @@ export function PaymentMethodsTab() {
       title: "Default payment updated",
       description: "Your default payment method has been updated."
     });
+    
+    // Update localStorage
+    setTimeout(() => {
+      const updatedMethods = paymentMethods.map(card => ({
+        ...card,
+        isDefault: card.id === id
+      }));
+      localStorage.setItem('paymentMethods', JSON.stringify(updatedMethods));
+    }, 100);
   };
 
   const resetCardForm = () => {
@@ -210,6 +235,14 @@ export function PaymentMethodsTab() {
       isDefault: false
     });
   };
+
+  // Load payment methods from localStorage on initial render
+  useState(() => {
+    const savedMethods = localStorage.getItem('paymentMethods');
+    if (savedMethods) {
+      setPaymentMethods(JSON.parse(savedMethods));
+    }
+  });
 
   // Generate years for select options
   const generateYearOptions = () => {
@@ -240,12 +273,12 @@ export function PaymentMethodsTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
           <CreditCard className="mr-2 text-indigo-600" />
           Payment Methods
         </h2>
         <Button 
-          className="bg-indigo-600 hover:bg-indigo-700"
+          className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm"
           onClick={() => setIsAddingCard(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -254,13 +287,13 @@ export function PaymentMethodsTab() {
       </div>
       
       {paymentMethods.length === 0 && !isAddingCard && (
-        <Card className="bg-white shadow-sm border-slate-100 p-8 text-center">
-          <div className="text-center py-8">
+        <Card className="bg-white shadow-sm border-slate-100 p-4 md:p-8 text-center">
+          <div className="text-center py-6 md:py-8">
             <div className="inline-flex justify-center items-center p-4 bg-indigo-50 rounded-full mb-6">
               <CreditCard className="h-8 w-8 text-indigo-600" />
             </div>
-            <h3 className="text-xl font-bold mb-2">No payment methods</h3>
-            <p className="text-gray-500 mb-6">Add a payment method to make checkout easier</p>
+            <h3 className="text-lg md:text-xl font-bold mb-2">No payment methods</h3>
+            <p className="text-gray-500 mb-6 text-sm md:text-base">Add a payment method to make checkout easier</p>
             <Button 
               onClick={() => setIsAddingCard(true)}
               className="bg-indigo-600 hover:bg-indigo-700"
@@ -275,22 +308,23 @@ export function PaymentMethodsTab() {
       {isAddingCard ? (
         <Card className="bg-white shadow-sm border-slate-100">
           <CardHeader>
-            <CardTitle>{isEditingCard ? 'Edit Payment Method' : 'Add New Payment Method'}</CardTitle>
+            <CardTitle className="text-lg md:text-xl">{isEditingCard ? 'Edit Payment Method' : 'Add New Payment Method'}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="cardholderName">Cardholder Name</Label>
+              <Label htmlFor="cardholderName" className="text-sm">Cardholder Name</Label>
               <Input 
                 id="cardholderName" 
                 name="cardholderName" 
                 value={newCard.cardholderName} 
                 onChange={handleInputChange} 
                 placeholder="John Doe"
+                className="text-sm"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="cardNumber">Card Number</Label>
+              <Label htmlFor="cardNumber" className="text-sm">Card Number</Label>
               <Input 
                 id="cardNumber" 
                 name="cardNumber" 
@@ -301,12 +335,13 @@ export function PaymentMethodsTab() {
                 }}
                 placeholder="**** **** **** ****"
                 disabled={!!isEditingCard}
+                className="text-sm"
               />
             </div>
             
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="expiryMonth">Expiry Month</Label>
+                <Label htmlFor="expiryMonth" className="text-sm">Expiry Month</Label>
                 <select 
                   id="expiryMonth"
                   name="expiryMonth"
@@ -322,7 +357,7 @@ export function PaymentMethodsTab() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="expiryYear">Expiry Year</Label>
+                <Label htmlFor="expiryYear" className="text-sm">Expiry Year</Label>
                 <select 
                   id="expiryYear"
                   name="expiryYear"
@@ -338,7 +373,7 @@ export function PaymentMethodsTab() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="cvv">CVV</Label>
+                <Label htmlFor="cvv" className="text-sm">CVV</Label>
                 <Input 
                   id="cvv" 
                   name="cvv" 
@@ -350,6 +385,7 @@ export function PaymentMethodsTab() {
                   placeholder="***"
                   type="password"
                   maxLength={4}
+                  className="text-sm"
                 />
               </div>
             </div>
@@ -373,11 +409,12 @@ export function PaymentMethodsTab() {
               <Button 
                 variant="outline" 
                 onClick={resetCardForm}
+                className="text-xs md:text-sm"
               >
                 Cancel
               </Button>
               <Button 
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm"
                 onClick={saveCard}
                 disabled={!newCard.cardholderName || (!isEditingCard && newCard.cardNumber.length < 13) || !newCard.expiryMonth || !newCard.expiryYear}
               >
@@ -386,7 +423,7 @@ export function PaymentMethodsTab() {
             </div>
             
             {!isEditingCard && (
-              <div className="text-sm text-gray-500 flex items-center mt-4">
+              <div className="text-xs md:text-sm text-gray-500 flex items-center mt-4">
                 <AlertCircle className="h-4 w-4 mr-2 text-amber-500" />
                 <p>
                   This is a demo app. No real payment information is stored or processed.
@@ -400,14 +437,14 @@ export function PaymentMethodsTab() {
           {paymentMethods.map(card => (
             <Card key={card.id} className="bg-white shadow-sm border-slate-100">
               <CardContent className="p-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                   <div className="flex items-center">
                     {getCardLogo(card.type)}
                     <div>
-                      <div className="flex items-center">
-                        <p className="font-medium">{card.type.toUpperCase()} •••• {card.lastFour}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-sm md:text-base">{card.type.toUpperCase()} •••• {card.lastFour}</p>
                         {card.isDefault && (
-                          <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
                             Default
                           </span>
                         )}
@@ -418,13 +455,13 @@ export function PaymentMethodsTab() {
                     </div>
                   </div>
                   
-                  <div className="flex space-x-2">
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     {!card.isDefault && (
                       <Button 
                         variant="outline"
                         size="sm"
                         onClick={() => setDefaultCard(card.id)}
-                        className="text-indigo-600 hover:bg-indigo-50 border-indigo-200"
+                        className="text-indigo-600 hover:bg-indigo-50 border-indigo-200 text-xs"
                       >
                         Set as Default
                       </Button>
@@ -433,18 +470,18 @@ export function PaymentMethodsTab() {
                       variant="outline"
                       size="sm"
                       onClick={() => editCard(card)}
-                      className="text-slate-700 hover:bg-slate-50"
+                      className="text-slate-700 hover:bg-slate-50 text-xs"
                     >
-                      <Edit2 className="h-4 w-4 mr-1" />
+                      <Edit2 className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
                     <Button 
                       variant="outline"
                       size="sm"
                       onClick={() => deleteCard(card.id)}
-                      className="text-red-500 hover:bg-red-50 border-red-200"
+                      className="text-red-500 hover:bg-red-50 border-red-200 text-xs"
                     >
-                      <Trash2 className="h-4 w-4 mr-1" />
+                      <Trash2 className="h-3 w-3 mr-1" />
                       Delete
                     </Button>
                   </div>

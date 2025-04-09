@@ -105,7 +105,7 @@ export function ReviewsRatingTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 flex items-center">
           <MessageSquare className="mr-2 text-indigo-600" />
           My Reviews
         </h2>
@@ -185,41 +185,42 @@ export function ReviewsRatingTab() {
       
       {pendingReviews.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+          <h2 className="text-lg md:text-xl font-semibold text-slate-800 mb-4 flex items-center">
             <ShoppingBag className="mr-2 text-indigo-600" />
             Products to Review
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {pendingReviews.map(product => (
               <Card key={product.id} className="bg-white shadow-sm border-slate-100">
-                <CardContent className="p-0">
-                  <div className="aspect-square relative">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <div className="mb-2">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 shrink-0">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="flex-1">
                       <h3 
-                        className="font-semibold hover:text-indigo-600 cursor-pointer"
+                        className="font-semibold text-sm md:text-base hover:text-indigo-600 cursor-pointer"
                         onClick={() => navigate(`/products/${product.id}`)}
                       >
                         {product.name}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-xs md:text-sm text-gray-500 mb-2">
                         Purchased on {formatDate(product.purchaseDate)}
                       </p>
+                      <Button 
+                        className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm"
+                        onClick={() => handleAddReview(product.id)}
+                        size="sm"
+                      >
+                        <Star className="mr-2 h-3 w-3" />
+                        Write a Review
+                      </Button>
                     </div>
-                    <Button 
-                      className="w-full bg-indigo-600 hover:bg-indigo-700"
-                      onClick={() => handleAddReview(product.id)}
-                    >
-                      <Star className="mr-2 h-4 w-4" />
-                      Write a Review
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
