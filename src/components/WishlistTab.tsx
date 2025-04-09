@@ -6,18 +6,24 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Trash2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 export function WishlistTab() {
   const { items, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const handleAddToCart = (productId: number) => {
     const product = items.find(item => item.id === productId);
     if (product) {
       addToCart(product);
       removeFromWishlist(productId);
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart and removed from wishlist.`
+      });
     }
   };
 
@@ -30,12 +36,6 @@ export function WishlistTab() {
           </div>
           <h2 className="text-xl font-bold mb-2">Your wishlist is empty</h2>
           <p className="text-gray-500 mb-6">Save items you like by clicking the heart icon on products</p>
-          <Button 
-            onClick={() => navigate('/products')}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            Start Shopping
-          </Button>
         </div>
       </Card>
     );
@@ -49,7 +49,13 @@ export function WishlistTab() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => items.forEach(item => removeFromWishlist(item.id))}
+            onClick={() => {
+              items.forEach(item => removeFromWishlist(item.id));
+              toast({
+                title: "Wishlist cleared",
+                description: "All items have been removed from your wishlist."
+              });
+            }}
             className="text-red-500 border-red-200 hover:bg-red-50"
           >
             <Trash2 size={16} className="mr-2" /> Clear All
@@ -102,12 +108,18 @@ export function WishlistTab() {
                       className="flex-1 h-8 bg-indigo-600 hover:bg-indigo-700 text-xs"
                     >
                       <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                      Add
+                      Add to Cart
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => removeFromWishlist(item.id)}
+                      onClick={() => {
+                        removeFromWishlist(item.id);
+                        toast({
+                          title: "Removed from wishlist",
+                          description: `${item.name} has been removed from your wishlist.`
+                        });
+                      }}
                       className="h-8 aspect-square p-0 border-red-200 text-red-500 hover:bg-red-50"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -163,7 +175,13 @@ export function WishlistTab() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => removeFromWishlist(item.id)}
+                      onClick={() => {
+                        removeFromWishlist(item.id);
+                        toast({
+                          title: "Removed from wishlist",
+                          description: `${item.name} has been removed from your wishlist.`
+                        });
+                      }}
                       className="aspect-square p-0 border-red-200 text-red-500 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />

@@ -8,11 +8,15 @@ import { UserSettings } from '@/components/UserSettings';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Package, Heart, Settings } from 'lucide-react';
+import { User, Package, Heart, Settings, MapPin, MessageSquare, Percent, CreditCard } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Toaster } from '@/components/ui/toaster';
 import { useWishlist } from '@/context/WishlistContext';
 import { WishlistTab } from '@/components/WishlistTab';
+import { ManageAddressTab } from '@/components/ManageAddressTab';
+import { ReviewsRatingTab } from '@/components/ReviewsRatingTab';
+import { CouponsOffersTab } from '@/components/CouponsOffersTab';
+import { PaymentMethodsTab } from '@/components/PaymentMethodsTab';
 
 const UserAccount = () => {
   const { user } = useAuth();
@@ -48,8 +52,12 @@ const UserAccount = () => {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'addresses', label: 'Manage Addresses', icon: MapPin },
     { id: 'orders', label: 'Orders', icon: Package },
     { id: 'wishlist', label: 'Wishlist', icon: Heart, badge: wishlistItems.length },
+    { id: 'reviews', label: 'Reviews & Ratings', icon: MessageSquare },
+    { id: 'coupons', label: 'Coupons & Offers', icon: Percent },
+    { id: 'payments', label: 'Payment Methods', icon: CreditCard },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -57,10 +65,18 @@ const UserAccount = () => {
     switch (activeTab) {
       case 'profile':
         return <ProfileCard />;
+      case 'addresses':
+        return <ManageAddressTab />;
       case 'orders':
         return <OrdersList />;
       case 'wishlist':
         return <WishlistTab />;
+      case 'reviews':
+        return <ReviewsRatingTab />;
+      case 'coupons':
+        return <CouponsOffersTab />;
+      case 'payments':
+        return <PaymentMethodsTab />;
       case 'settings':
         return <UserSettings />;
       default:

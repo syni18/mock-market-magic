@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, Bell, Shield, CreditCard, Edit2, Sun, Moon, Smartphone } from 'lucide-react';
+import { Settings, Bell, Shield, Sun, Moon, Smartphone } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export const UserSettings = () => {
@@ -25,7 +25,6 @@ export const UserSettings = () => {
   // Privacy settings
   const [privacySettings, setPrivacySettings] = useState({
     shareUsageData: true,
-    storePaymentInfo: true,
   });
   
   const updateNotificationSetting = (setting: keyof typeof notificationSettings) => {
@@ -85,12 +84,6 @@ export const UserSettings = () => {
               checked={isDarkMode}
               onCheckedChange={toggleDarkMode}
             />
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center">
-              <span className={`${isMobile ? 'text-sm' : 'text-base'} text-slate-700`}>Responsive Mode</span>
-            </div>
-            <Switch checked={true} disabled />
           </div>
         </CardContent>
       </Card>
@@ -164,49 +157,6 @@ export const UserSettings = () => {
                 onCheckedChange={() => updatePrivacySetting('shareUsageData')}
               />
             </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center">
-                <span className={`${isMobile ? 'text-sm' : 'text-base'} text-slate-700`}>Store Payment Information</span>
-              </div>
-              <Switch
-                checked={privacySettings.storePaymentInfo}
-                onCheckedChange={() => updatePrivacySetting('storePaymentInfo')}
-              />
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <Button variant="outline" className="flex items-center text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200">
-              Delete Account
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Account Actions */}
-      <Card className="bg-white shadow-sm border-slate-100">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center">
-            <CreditCard className="h-4 w-4 mr-2" /> 
-            Payment Methods
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="py-2">
-            <div className="flex items-center">
-              <div className="w-10 h-6 bg-blue-600 rounded mr-3 flex items-center justify-center text-white text-xs font-bold">
-                VISA
-              </div>
-              <div>
-                <p className="text-sm font-medium">Visa ending in 4242</p>
-                <p className="text-xs text-slate-500">Expires 12/25</p>
-              </div>
-            </div>
-          </div>
-          <div className="pt-3">
-            <Button variant="outline" className="flex items-center text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200">
-              <Edit2 className="h-4 w-4 mr-2" />
-              Add Payment Method
-            </Button>
           </div>
         </CardContent>
       </Card>

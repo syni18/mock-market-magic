@@ -76,6 +76,9 @@ export const ProfileCard = () => {
     }
     return names[0][0].toUpperCase();
   };
+
+  // Check if phone is already set
+  const isPhoneSet = !!user.user_metadata?.phone;
   
   return (
     <Card className="w-full bg-white shadow-sm border-slate-100">
@@ -194,7 +197,20 @@ export const ProfileCard = () => {
                 <Phone className="h-4 w-4 mr-2 text-indigo-500" /> Phone
               </div>
               <div className="w-full md:w-2/3">
-                <div className="text-slate-800 py-2 px-3 bg-slate-50 rounded-md">{formData.phone || "Not set"}</div>
+                {editingSection === 'personal' && !isPhoneSet ? (
+                  <Input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="border-indigo-100 focus-visible:ring-indigo-300"
+                    placeholder="Enter phone number"
+                  />
+                ) : (
+                  <div className="text-slate-800 py-2 px-3 bg-slate-50 rounded-md">
+                    {formData.phone || "Not set"}
+                    {!formData.phone && <span className="text-indigo-500 text-sm ml-2">(Can be set once)</span>}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -222,7 +238,7 @@ export const ProfileCard = () => {
         {/* Address Information Section */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-lg text-slate-800">Address Information</h3>
+            <h3 className="font-semibold text-lg text-slate-800">Primary Address</h3>
             {editingSection !== 'address' ? (
               <Button 
                 variant="ghost" 
