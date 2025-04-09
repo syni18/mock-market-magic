@@ -12,15 +12,18 @@ import { MinusCircle, PlusCircle, ShoppingCart, Star, ChevronRight, Heart } from
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     if (id) {
@@ -36,6 +39,13 @@ const ProductDetail = () => {
           .slice(0, 4);
           
         setRelatedProducts(related);
+        
+        // Get suggested products (different category)
+        const suggested = getProductsByCategory("electronics")
+          .filter(p => p.id !== foundProduct.id)
+          .slice(0, 4);
+        
+        setSuggestedProducts(suggested);
       }
       
       // Reset quantity when product changes
@@ -85,6 +95,66 @@ const ProductDetail = () => {
   }
 
   const inWishlist = isInWishlist(product.id);
+
+  const RelatedProductCard = ({ product }: { product: Product }) => {
+    return (
+      <div className="flex flex-col md:flex-row gap-4 bg-white p-3 rounded-lg border shadow-sm">
+        <div className="w-full md:w-1/4">
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-auto aspect-square object-cover rounded"
+          />
+        </div>
+        <div className="flex-1 flex flex-col">
+          <div>
+            <h3 className="font-medium text-base md:text-lg mb-1 line-clamp-2">
+              {product.name}
+            </h3>
+            
+            <div className="flex items-center mb-1">
+              <div className="flex items-center text-amber-500 mr-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                    className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300"}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-gray-500">
+                {product.rating.toFixed(1)}
+              </span>
+            </div>
+            
+            <p className="text-base font-bold text-gray-900 mb-2">
+              ${product.price.toFixed(2)}
+            </p>
+          </div>
+          
+          <div className="mt-auto pt-2">
+            <Button 
+              onClick={() => addToCart(product)}
+              disabled={product.stock === 0}
+              className="w-full text-xs md:text-sm h-8"
+              size="sm"
+              variant={product.stock === 0 ? "outline" : "default"}
+            >
+              {product.stock === 0 ? (
+                "Out of Stock"
+              ) : (
+                <>
+                  <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                  Add to Cart
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -206,18 +276,18 @@ const ProductDetail = () => {
               {/* Add to Cart */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
-                  size="lg"
+                  size={isMobile ? "sm" : "lg"}
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className="flex-1"
+                  className={`flex-1 font-medium py-2 ${isMobile ? 'text-sm h-10' : 'text-base h-12'}`}
                 >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  <ShoppingCart className={`${isMobile ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
                   Add to Cart
                 </Button>
                 <Button
-                  size="lg"
+                  size={isMobile ? "sm" : "lg"}
                   variant="secondary"
-                  className="flex-1"
+                  className={`flex-1 font-medium py-2 ${isMobile ? 'text-sm h-10' : 'text-base h-12'}`}
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
                 >
@@ -299,11 +369,23 @@ const ProductDetail = () => {
 
           {/* Related Products */}
           {relatedProducts.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Related Products</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mb-16">
+              <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4`}>Related Products</h2>
+              <div className="grid grid-cols-1 gap-4">
                 {relatedProducts.map(relatedProduct => (
-                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                  <RelatedProductCard key={relatedProduct.id} product={relatedProduct} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Suggested Products */}
+          {suggestedProducts.length > 0 && (
+            <div>
+              <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4`}>Suggested Products</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {suggestedProducts.map(suggestedProduct => (
+                  <RelatedProductCard key={suggestedProduct.id} product={suggestedProduct} />
                 ))}
               </div>
             </div>

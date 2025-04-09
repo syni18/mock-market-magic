@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -25,26 +24,22 @@ const UserAccount = () => {
   const isMobile = useIsMobile();
   const { items: wishlistItems } = useWishlist();
   
-  // Get the tab from URL query parameter
   const queryParams = new URLSearchParams(location.search);
   const tabFromUrl = queryParams.get('tab');
   
   const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile');
   
-  // Update active tab when URL changes
   useEffect(() => {
     if (tabFromUrl) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
 
-  // Redirect to login if not authenticated
   if (!user) {
     navigate('/signin');
     return null;
   }
 
-  // Update URL when tab changes
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     navigate(`/account?tab=${tabId}`);
@@ -93,7 +88,6 @@ const UserAccount = () => {
         <h1 className="text-2xl md:text-3xl font-bold mb-8 text-slate-800">My Account</h1>
         
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar / Tab Navigation - Hidden on mobile */}
           {!isMobile && (
             <div className="lg:w-64 shrink-0">
               <div className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
@@ -123,23 +117,22 @@ const UserAccount = () => {
             </div>
           )}
           
-          {/* Mobile Tab Navigation */}
           {isMobile && (
-            <div className="mb-6">
-              <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
+            <div className="mb-4">
+              <div className="flex overflow-x-auto pb-2 gap-1 no-scrollbar">
                 {tabs.map((tab) => (
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? "default" : "outline"}
-                    className={`flex items-center gap-1 shrink-0 text-xs py-1 h-auto px-3 ${
+                    className={`flex items-center gap-1 shrink-0 text-[10px] py-1 h-7 px-2 ${
                       activeTab === tab.id ? "bg-indigo-600 hover:bg-indigo-700" : "border-slate-200"
                     }`}
                     onClick={() => handleTabChange(tab.id)}
                   >
-                    <tab.icon className="h-3 w-3" />
+                    <tab.icon className="h-2.5 w-2.5" />
                     {tab.label}
                     {tab.badge ? (
-                      <span className="ml-1 text-xs bg-white text-indigo-600 rounded-full h-4 w-4 flex items-center justify-center">
+                      <span className="ml-1 text-[9px] bg-white text-indigo-600 rounded-full h-3.5 w-3.5 flex items-center justify-center">
                         {tab.badge}
                       </span>
                     ) : null}
@@ -149,7 +142,6 @@ const UserAccount = () => {
             </div>
           )}
           
-          {/* Main Content */}
           <div className="flex-grow">
             {renderTabContent()}
           </div>
