@@ -118,7 +118,7 @@ const Wishlist = () => {
                       />
                     </div>
                     <div className="w-2/3 p-3 flex flex-col">
-                      <div onClick={() => navigate(`/products/${product.id}`)} className="cursor-pointer">
+                      <div className="cursor-pointer" onClick={() => navigate(`/products/${product.id}`)}>
                         <h3 className="font-medium text-sm line-clamp-1 text-slate-800">
                           {product.name}
                         </h3>
@@ -180,7 +180,7 @@ const Wishlist = () => {
                       />
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
-                      <div className="mb-2" onClick={() => navigate(`/products/${product.id}`)} className="cursor-pointer">
+                      <div className="mb-2 cursor-pointer" onClick={() => navigate(`/products/${product.id}`)}>
                         <h3 className="text-lg font-medium line-clamp-1 hover:text-indigo-600 transition-colors text-slate-800">
                           {product.name}
                         </h3>
