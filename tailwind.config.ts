@@ -53,17 +53,18 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Updated modern color palette
 				ecommerce: {
-					'50': '#f0f7ff',
-					'100': '#e0eefe',
-					'200': '#baddfc',
-					'300': '#7ec2f9',
-					'400': '#38a1f4',
-					'500': '#0e84e5',
-					'600': '#0169c7',
-					'700': '#0154a2',
-					'800': '#034786',
-					'900': '#083c6f',
+					'50': '#f0f4ff',
+					'100': '#e0e9ff',
+					'200': '#c7d7fe',
+					'300': '#a5bcfc',
+					'400': '#7e99f8',
+					'500': '#6377f3',
+					'600': '#4354e8',
+					'700': '#3642ce',
+					'800': '#2f39a7',
+					'900': '#2b3484',
 				},
 			},
 			borderRadius: {

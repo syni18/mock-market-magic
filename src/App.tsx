@@ -17,6 +17,25 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import Wishlist from "./pages/Wishlist";
+import UserAccount from "./pages/UserAccount";
+import { useIsMobile } from "./hooks/use-mobile";
+
+// Custom toast provider based on screen size
+const CustomToastProvider = () => {
+  const isMobile = useIsMobile();
+  
+  // Don't render toasts on mobile screens
+  if (isMobile) {
+    return null;
+  }
+  
+  return (
+    <>
+      <Toaster />
+      <Sonner />
+    </>
+  );
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,8 +53,7 @@ const App = () => (
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              <Toaster />
-              <Sonner />
+              <CustomToastProvider />
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
@@ -49,6 +67,7 @@ const App = () => (
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/account" element={<UserAccount />} />
                 </Route>
                 
                 {/* 404 Route */}
