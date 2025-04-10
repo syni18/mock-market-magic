@@ -66,6 +66,15 @@ export default {
 					'800': '#2f39a7',
 					'900': '#2b3484',
 				},
+				// Dark mode colors
+				dark: {
+					'bg': '#1A1F2C',
+					'card': '#221F26',
+					'border': '#333333',
+					'muted': '#2F2F3A',
+					'text': '#FFFFFF',
+					'accent': '#9b87f5',
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

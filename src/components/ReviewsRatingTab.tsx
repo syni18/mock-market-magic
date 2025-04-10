@@ -2,8 +2,16 @@
 import { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, MessageSquare, ShoppingBag } from 'lucide-react';
+import { Star, MessageSquare, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
+} from '@/components/ui/carousel';
 
 interface Review {
   id: string;
@@ -24,6 +32,7 @@ interface PendingReview {
 
 export function ReviewsRatingTab() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Sample data for reviews
   const [reviews, setReviews] = useState<Review[]>([
@@ -47,7 +56,7 @@ export function ReviewsRatingTab() {
     }
   ]);
 
-  // Products that need reviews
+  // Products that need reviews - expanded to have more products for carousel
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([
     {
       id: 103,
@@ -66,6 +75,30 @@ export function ReviewsRatingTab() {
       name: 'Ergonomic Mouse',
       image: 'https://via.placeholder.com/150',
       purchaseDate: '2023-11-03'
+    },
+    {
+      id: 106,
+      name: 'Mechanical Keyboard',
+      image: 'https://via.placeholder.com/150',
+      purchaseDate: '2023-11-15'
+    },
+    {
+      id: 107,
+      name: 'USB-C Hub',
+      image: 'https://via.placeholder.com/150',
+      purchaseDate: '2023-12-01'
+    },
+    {
+      id: 108,
+      name: 'Wireless Charger',
+      image: 'https://via.placeholder.com/150',
+      purchaseDate: '2023-12-10'
+    },
+    {
+      id: 109,
+      name: 'Phone Case',
+      image: 'https://via.placeholder.com/150',
+      purchaseDate: '2024-01-05'
     }
   ]);
 
@@ -105,7 +138,7 @@ export function ReviewsRatingTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 flex items-center">
+        <h2 className="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center">
           <MessageSquare className="mr-2 text-indigo-600" />
           My Reviews
         </h2>
@@ -185,47 +218,92 @@ export function ReviewsRatingTab() {
       
       {pendingReviews.length > 0 && (
         <div>
-          <h2 className="text-lg md:text-xl font-semibold text-slate-800 mb-4 flex items-center">
+          <h2 className="text-base md:text-lg font-semibold text-slate-800 mb-4 flex items-center">
             <ShoppingBag className="mr-2 text-indigo-600" />
             Products to Review
           </h2>
           
-          <div className="space-y-3">
-            {pendingReviews.map(product => (
-              <Card key={product.id} className="bg-white shadow-sm border-slate-100">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 shrink-0">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover rounded-md"
-                      />
+          {/* Responsive design for product cards */}
+          {isMobile ? (
+            <div className="space-y-3">
+              {pendingReviews.map(product => (
+                <Card key={product.id} className="bg-white shadow-sm border-slate-100">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 shrink-0">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="h-full w-full object-cover rounded-md"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 
+                          className="font-semibold text-sm md:text-base hover:text-indigo-600 cursor-pointer truncate"
+                          onClick={() => navigate(`/products/${product.id}`)}
+                        >
+                          {product.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Purchased on {formatDate(product.purchaseDate)}
+                        </p>
+                        <Button 
+                          className="bg-indigo-600 hover:bg-indigo-700 text-xs w-full"
+                          onClick={() => handleAddReview(product.id)}
+                          size="sm"
+                        >
+                          <Star className="mr-1 h-3 w-3" />
+                          Write a Review
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 
-                        className="font-semibold text-sm md:text-base hover:text-indigo-600 cursor-pointer"
-                        onClick={() => navigate(`/products/${product.id}`)}
-                      >
-                        {product.name}
-                      </h3>
-                      <p className="text-xs md:text-sm text-gray-500 mb-2">
-                        Purchased on {formatDate(product.purchaseDate)}
-                      </p>
-                      <Button 
-                        className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm"
-                        onClick={() => handleAddReview(product.id)}
-                        size="sm"
-                      >
-                        <Star className="mr-2 h-3 w-3" />
-                        Write a Review
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-4">
+                {pendingReviews.map(product => (
+                  <CarouselItem key={product.id} className="pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                    <Card className="bg-white shadow-sm border-slate-100 h-full">
+                      <CardContent className="p-4 flex flex-col items-center space-y-4">
+                        <div className="w-32 h-32 flex items-center justify-center">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="max-h-full max-w-full object-cover rounded-md"
+                            onClick={() => navigate(`/products/${product.id}`)}
+                          />
+                        </div>
+                        <div className="text-center">
+                          <h3 
+                            className="font-semibold text-sm hover:text-indigo-600 cursor-pointer mb-1"
+                            onClick={() => navigate(`/products/${product.id}`)}
+                          >
+                            {product.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 mb-2">
+                            {formatDate(product.purchaseDate)}
+                          </p>
+                          <Button 
+                            className="bg-indigo-600 hover:bg-indigo-700 text-xs w-full"
+                            onClick={() => handleAddReview(product.id)}
+                            size="sm"
+                          >
+                            <Star className="mr-1 h-3 w-3" />
+                            Write a Review
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          )}
         </div>
       )}
     </div>

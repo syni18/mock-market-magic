@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -85,7 +86,7 @@ const UserAccount = () => {
       <Toaster />
 
       <div className="container py-8 flex-grow">
-        <h1 className="text-2xl md:text-3xl font-bold mb-8 text-slate-800">My Account</h1>
+        <h1 className="text-xl md:text-2xl font-bold mb-6 text-slate-800">My Account</h1>
         
         <div className="flex flex-col lg:flex-row gap-6">
           {!isMobile && (
@@ -124,15 +125,15 @@ const UserAccount = () => {
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? "default" : "outline"}
-                    className={`flex items-center gap-2 shrink-0 ${
+                    className={`flex items-center gap-1 shrink-0 px-2.5 py-1 text-xs ${
                       activeTab === tab.id ? "bg-indigo-600 hover:bg-indigo-700" : "border-slate-200"
                     }`}
                     onClick={() => handleTabChange(tab.id)}
                   >
                     <tab.icon className="h-3 w-3" />
-                    {tab.label}
+                    <span className="text-xs truncate">{tab.label}</span>
                     {tab.badge ? (
-                      <span className="ml-1 text-xs bg-white text-indigo-600 rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="ml-0.5 text-xs bg-white text-indigo-600 rounded-full h-4 w-4 flex items-center justify-center">
                         {tab.badge}
                       </span>
                     ) : null}

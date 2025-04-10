@@ -150,8 +150,10 @@ export function ManageAddressTab() {
           try {
             // Use reverse geocoding API to get the address from coordinates
             const { latitude, longitude } = position.coords;
+            
+            // Use a more reliable geocoding service
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+              `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=7d8554a463424f5e81a9b3279a0e9d54`
             );
             
             if (!response.ok) {
@@ -159,22 +161,27 @@ export function ManageAddressTab() {
             }
             
             const data = await response.json();
-            const address = data.address;
             
-            // Update the form with the geocoded information
-            setNewAddress(prev => ({
-              ...prev,
-              street: address.road || address.street || '',
-              city: address.city || address.town || address.village || '',
-              state: address.state || address.county || '',
-              zipCode: address.postcode || '',
-              country: address.country || '',
-            }));
-            
-            toast({
-              title: "Location detected",
-              description: "Your address has been auto-filled based on your location."
-            });
+            if (data.features && data.features.length > 0) {
+              const properties = data.features[0].properties;
+              
+              // Update the form with the geocoded information
+              setNewAddress(prev => ({
+                ...prev,
+                street: properties.street || properties.road || '',
+                city: properties.city || properties.town || properties.village || '',
+                state: properties.state || properties.county || '',
+                zipCode: properties.postcode || '',
+                country: properties.country || '',
+              }));
+              
+              toast({
+                title: "Location detected",
+                description: "Your address has been auto-filled based on your location."
+              });
+            } else {
+              throw new Error('No address details found');
+            }
           } catch (error) {
             console.error("Error getting address from coordinates:", error);
             toast({
@@ -219,13 +226,13 @@ export function ManageAddressTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
-          <MapPin className="mr-2 text-indigo-600" />
-          Manage Addresses
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center truncate">
+          <MapPin className="min-w-5 h-5 mr-2 text-indigo-600" />
+          <span className="truncate">Manage Addresses</span>
         </h2>
         <Button 
-          className="bg-indigo-600 hover:bg-indigo-700 text-sm md:text-base"
+          className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm whitespace-nowrap ml-2 px-2 md:px-4"
           onClick={() => {
             setIsAddingAddress(true);
             setIsEditingAddress(null);
@@ -240,8 +247,8 @@ export function ManageAddressTab() {
             });
           }}
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Address
+          <Plus className="mr-1 h-3 w-3" />
+          Add Address
         </Button>
       </div>
       
