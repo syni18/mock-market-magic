@@ -23,7 +23,11 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Save cart to localStorage
 const saveCartToStorage = (items: CartItem[]) => {
-  localStorage.setItem('cart', JSON.stringify(items));
+  try {
+    localStorage.setItem('cart', JSON.stringify(items));
+  } catch (error) {
+    console.error('Failed to save cart to localStorage', error);
+  }
 };
 
 // Get cart from localStorage
@@ -41,7 +45,7 @@ const getCartFromStorage = (): CartItem[] => {
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(getCartFromStorage);
+  const [items, setItems] = useState<CartItem[]>(() => getCartFromStorage());
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [cartCount, setCartCount] = useState<number>(0);
   const isMobile = useIsMobile();
@@ -57,6 +61,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Save to localStorage whenever cart changes
     saveCartToStorage(items);
   }, [items]);
+  
+  // Load cart from localStorage on initial render
+  useEffect(() => {
+    const savedCart = getCartFromStorage();
+    if (savedCart && savedCart.length > 0) {
+      setItems(savedCart);
+    }
+  }, []);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setItems(prevItems => {

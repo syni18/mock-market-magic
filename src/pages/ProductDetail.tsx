@@ -96,6 +96,11 @@ const ProductDetail = () => {
     }
   };
 
+  const navigateToProduct = (productId: number) => {
+    navigate(`/products/${productId}`);
+    window.scrollTo(0, 0);
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col dark:bg-slate-900">
@@ -112,65 +117,11 @@ const ProductDetail = () => {
 
   const RelatedProductCard = ({ product }: { product: Product }) => {
     return isMobile ? (
-      // Mobile card layout (horizontal)
-      <div className="flex flex-col md:flex-row gap-4 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700">
-        <div className="w-full md:w-1/4">
-          <img 
-            src={product.image} 
-            alt={product.name}
-            className="w-full h-auto aspect-square object-cover rounded"
-          />
-        </div>
-        <div className="flex-1 flex flex-col">
-          <div>
-            <h3 className="font-medium text-base md:text-lg mb-1 line-clamp-2 dark:text-white">
-              {product.name}
-            </h3>
-            
-            <div className="flex items-center mb-1">
-              <div className="flex items-center text-amber-500 mr-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={14}
-                    fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
-                    className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {product.rating.toFixed(1)}
-              </span>
-            </div>
-            
-            <p className="text-base font-bold text-gray-900 mb-2 dark:text-white">
-              ${product.price.toFixed(2)}
-            </p>
-          </div>
-          
-          <div className="mt-auto pt-2">
-            <Button 
-              onClick={() => addToCart(product)}
-              disabled={product.stock === 0}
-              className="w-full text-xs md:text-sm h-8"
-              size="sm"
-              variant={product.stock === 0 ? "outline" : "default"}
-            >
-              {product.stock === 0 ? (
-                "Out of Stock"
-              ) : (
-                <>
-                  <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                  Add to Cart
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-    ) : (
-      // Desktop card layout (vertical)
-      <div className="flex flex-col gap-2 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700">
+      // Mobile card layout (grid view 2 in a row)
+      <div 
+        className="flex flex-col gap-2 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700"
+        onClick={() => navigateToProduct(product.id)}
+      >
         <div className="w-full">
           <img 
             src={product.image} 
@@ -180,16 +131,16 @@ const ProductDetail = () => {
         </div>
         <div className="flex-1 flex flex-col">
           <div>
-            <h3 className="font-medium text-base mb-2 line-clamp-2 dark:text-white">
+            <h3 className="font-medium text-sm mb-1 line-clamp-1 dark:text-white">
               {product.name}
             </h3>
             
-            <div className="flex items-center mb-2">
+            <div className="flex items-center mb-1">
               <div className="flex items-center text-amber-500 mr-2">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    size={14}
+                    size={12}
                     fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
                     className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}
                   />
@@ -200,16 +151,19 @@ const ProductDetail = () => {
               </span>
             </div>
             
-            <p className="text-base font-bold text-gray-900 mb-2 dark:text-white">
+            <p className="text-sm font-bold text-gray-900 mb-1 dark:text-white">
               ${product.price.toFixed(2)}
             </p>
           </div>
           
-          <div className="mt-auto pt-2">
+          <div className="mt-auto pt-1">
             <Button 
-              onClick={() => addToCart(product)}
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product);
+              }}
               disabled={product.stock === 0}
-              className="w-full text-xs h-8"
+              className="w-full text-xs h-7"
               size="sm"
               variant={product.stock === 0 ? "outline" : "default"}
             >
@@ -217,12 +171,71 @@ const ProductDetail = () => {
                 "Out of Stock"
               ) : (
                 <>
-                  <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                  <ShoppingCart className="h-3 w-3 mr-1" />
                   Add to Cart
                 </>
               )}
             </Button>
           </div>
+        </div>
+      </div>
+    ) : (
+      // Desktop card layout (vertical 5 in a row)
+      <div 
+        className="flex flex-col gap-2 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-md transition-shadow"
+        onClick={() => navigateToProduct(product.id)}
+      >
+        <div className="w-full">
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-auto aspect-square object-cover rounded"
+          />
+        </div>
+        <h3 className="font-medium text-base mt-2 line-clamp-1 dark:text-white">
+          {product.name}
+        </h3>
+        
+        <div className="flex items-center my-1">
+          <div className="flex items-center text-amber-500 mr-2">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                size={14}
+                fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}
+              />
+            ))}
+          </div>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {product.rating.toFixed(1)}
+          </span>
+        </div>
+        
+        <p className="text-base font-bold text-gray-900 my-1 dark:text-white">
+          ${product.price.toFixed(2)}
+        </p>
+        
+        <div className="mt-auto pt-1">
+          <Button 
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+            }}
+            disabled={product.stock === 0}
+            className="w-full text-xs h-8"
+            size="sm"
+            variant={product.stock === 0 ? "outline" : "default"}
+          >
+            {product.stock === 0 ? (
+              "Out of Stock"
+            ) : (
+              <>
+                <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                Add to Cart
+              </>
+            )}
+          </Button>
         </div>
       </div>
     );
@@ -446,14 +459,14 @@ const ProductDetail = () => {
             <div className="mb-16">
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 dark:text-white`}>Related Products</h2>
               {isMobile ? (
-                // Mobile grid view
+                // Mobile grid view - 2 products per row
                 <div className="grid grid-cols-2 gap-4">
                   {relatedProducts.slice(0, 6).map(relatedProduct => (
                     <RelatedProductCard key={relatedProduct.id} product={relatedProduct} />
                   ))}
                 </div>
               ) : (
-                // Desktop carousel view
+                // Desktop carousel view - 5 products per view
                 <Carousel
                   opts={{
                     align: "start",
@@ -482,14 +495,14 @@ const ProductDetail = () => {
             <div>
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 dark:text-white`}>Suggested Products</h2>
               {isMobile ? (
-                // Mobile grid view
+                // Mobile grid view - 2 products per row
                 <div className="grid grid-cols-2 gap-4">
                   {suggestedProducts.slice(0, 6).map(suggestedProduct => (
                     <RelatedProductCard key={suggestedProduct.id} product={suggestedProduct} />
                   ))}
                 </div>
               ) : (
-                // Desktop carousel view
+                // Desktop carousel view - 5 products per view
                 <Carousel
                   opts={{
                     align: "start",
