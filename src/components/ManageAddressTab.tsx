@@ -139,90 +139,105 @@ export function ManageAddressTab() {
   };
 
   const detectLocation = () => {
-    if (navigator.geolocation) {
-      toast({
-        title: "Detecting location",
-        description: "Please allow location access to auto-fill your address."
-      });
-      
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            // Use reverse geocoding API to get the address from coordinates
-            const { latitude, longitude } = position.coords;
-            
-            // Use a more reliable geocoding service
-            const response = await fetch(
-              `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=7d8554a463424f5e81a9b3279a0e9d54`
-            );
-            
-            if (!response.ok) {
-              throw new Error('Failed to fetch address information');
-            }
-            
-            const data = await response.json();
-            
-            if (data.features && data.features.length > 0) {
-              const properties = data.features[0].properties;
-              
-              // Update the form with the geocoded information
-              setNewAddress(prev => ({
-                ...prev,
-                street: properties.street || properties.road || '',
-                city: properties.city || properties.town || properties.village || '',
-                state: properties.state || properties.county || '',
-                zipCode: properties.postcode || '',
-                country: properties.country || '',
-              }));
-              
-              toast({
-                title: "Location detected",
-                description: "Your address has been auto-filled based on your location."
-              });
-            } else {
-              throw new Error('No address details found');
-            }
-          } catch (error) {
-            console.error("Error getting address from coordinates:", error);
-            toast({
-              title: "Could not complete address lookup",
-              description: "Got your location, but couldn't convert to an address. Please fill in manually.",
-              variant: "destructive"
-            });
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          let errorMessage = "Could not detect your location.";
-          
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage += " Location access was denied.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage += " Location information is unavailable.";
-              break;
-            case error.TIMEOUT:
-              errorMessage += " Location request timed out.";
-              break;
-          }
-          
-          toast({
-            title: "Error",
-            description: errorMessage,
-            variant: "destructive"
-          });
-        },
-        { timeout: 10000, enableHighAccuracy: true }
-      );
-    } else {
+    if (!navigator.geolocation) {
       toast({
         title: "Not supported",
         description: "Geolocation is not supported by your browser.",
-        variant: "destructive"
+        variant: "destructive",
       });
+      return;
     }
+  
+    toast({
+      title: "Detecting location",
+      description: "Please allow location access to auto-fill your address.",
+    });
+  
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+  
+        // Check if location is too inaccurate (e.g., > 1000 meters)
+        if (accuracy > 1000) {
+          toast({
+            title: "Low accuracy location",
+            description: "We couldn't get a precise location. Please enter manually.",
+            variant: "destructive",
+          });
+          return;
+        }
+  
+        try {
+          // Google Maps API Call
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAP_API_KEY}&language=en`
+          );
+  
+          if (!response.ok) {
+            throw new Error("Failed to fetch address from Google Maps");
+          }
+  
+          const data = await response.json();
+          
+          if (data.results && data.results.length > 0) {
+            const addressComponents = data.results[0].address_components;
+  
+            const getComponent = (type: string) =>
+              addressComponents.find((c) => c.types.includes(type))?.long_name || "";
+  
+            setNewAddress((prev) => ({
+              ...prev,
+              street: getComponent("locality") || getComponent("sublocality") || "",
+              city: getComponent("administrative_area_level_3") || getComponent("administrative_area_level_2") || "",
+              state: getComponent("administrative_area_level_1") || "",
+              zipCode: getComponent("postal_code") || "",
+              country: getComponent("country") || "",
+            }));
+  
+            toast({
+              title: "Location detected",
+              description: "Your address has been auto-filled.",
+            });
+          } else {
+            throw new Error("No address results found");
+          }
+        } catch (err) {
+          console.error("Reverse geocoding error:", err);
+          toast({
+            title: "Could not complete address lookup",
+            description: "Got your location, but couldn't convert to an address. Please fill manually.",
+            variant: "destructive",
+          });
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        let errorMessage = "Could not detect your location.";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += " Location access was denied.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += " Location information is unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage += " Location request timed out.";
+            break;
+        }
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
+
 
   return (
     <div className="space-y-6">
