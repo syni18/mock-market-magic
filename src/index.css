@@ -37,10 +37,10 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222.2 47.4% 11.2%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222.2 47.4% 11.2%;
     --card-foreground: 210 40% 98%;
 
     --popover: 222.2 84% 4.9%;
@@ -73,7 +73,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -125,5 +125,24 @@
     50% {
       opacity: .7;
     }
+  }
+}
+
+/* Dark mode classes */
+.dark .hero-section {
+  background-image: linear-gradient(to right, rgba(30,41,59,0.9), rgba(30,41,59,0.7)),
+                    url('/hero-bg.jpg');
+}
+
+/* Remove overflow scrollbars in user account on mobile */
+@media (max-width: 640px) {
+  #user-account-content {
+    overflow: auto !important;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  #user-account-content::-webkit-scrollbar {
+    display: none;
   }
 }

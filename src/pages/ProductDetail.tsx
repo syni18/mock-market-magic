@@ -276,18 +276,18 @@ const ProductDetail = () => {
               {/* Add to Cart */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
-                  size={isMobile ? "sm" : "lg"}
+                  size={isMobile ? "default" : "lg"}
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className={`flex-1 font-medium py-2 ${isMobile ? 'text-sm h-10' : 'text-base h-12'}`}
+                  className={`flex-1 font-medium ${isMobile ? 'py-1.5 px-3 text-sm h-10' : 'py-2 px-4 text-base h-12'}`}
                 >
                   <ShoppingCart className={`${isMobile ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
                   Add to Cart
                 </Button>
                 <Button
-                  size={isMobile ? "sm" : "lg"}
+                  size={isMobile ? "default" : "lg"}
                   variant="secondary"
-                  className={`flex-1 font-medium py-2 ${isMobile ? 'text-sm h-10' : 'text-base h-12'}`}
+                  className={`flex-1 font-medium ${isMobile ? 'py-1.5 px-3 text-sm h-10' : 'py-2 px-4 text-base h-12'}`}
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
                 >
@@ -371,7 +371,7 @@ const ProductDetail = () => {
           {relatedProducts.length > 0 && (
             <div className="mb-16">
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4`}>Related Products</h2>
-              <div className="grid grid-cols-1 gap-4">
+              <div className={`grid grid-cols-1 ${isMobile ? 'sm:grid-cols-2' : ''} gap-4`}>
                 {relatedProducts.map(relatedProduct => (
                   <RelatedProductCard key={relatedProduct.id} product={relatedProduct} />
                 ))}
@@ -383,7 +383,7 @@ const ProductDetail = () => {
           {suggestedProducts.length > 0 && (
             <div>
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4`}>Suggested Products</h2>
-              <div className="grid grid-cols-1 gap-4">
+              <div className={`grid grid-cols-1 ${isMobile ? 'sm:grid-cols-2' : ''} gap-4`}>
                 {suggestedProducts.map(suggestedProduct => (
                   <RelatedProductCard key={suggestedProduct.id} product={suggestedProduct} />
                 ))}
