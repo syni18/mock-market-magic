@@ -273,16 +273,16 @@ export function PaymentMethodsTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
-          <CreditCard className="mr-2 text-indigo-600" />
-          Payment Methods
+        <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center truncate">
+          <CreditCard className="min-w-5 h-5 mr-2 text-indigo-600" />
+          <span className='truncate'>Payment Methods</span>
         </h2>
         <Button 
-          className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm"
+          className="bg-indigo-600 hover:bg-indigo-700 text-xs md:text-sm whitespace-nowrap ml-2 px-2 md:px-4"
           onClick={() => setIsAddingCard(true)}
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Payment Method
+          <Plus className="mr-1 h-3 w-3" />
+          Add Payment
         </Button>
       </div>
       
