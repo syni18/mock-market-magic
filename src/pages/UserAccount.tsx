@@ -124,15 +124,15 @@ const UserAccount = () => {
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? "default" : "outline"}
-                    className={`flex items-center gap-1 shrink-0 text-[10px] py-1 h-7 px-2 ${
+                    className={`flex items-center gap-2 shrink-0 ${
                       activeTab === tab.id ? "bg-indigo-600 hover:bg-indigo-700" : "border-slate-200"
                     }`}
                     onClick={() => handleTabChange(tab.id)}
                   >
-                    <tab.icon className="h-2.5 w-2.5" />
+                    <tab.icon className="h-3 w-3" />
                     {tab.label}
                     {tab.badge ? (
-                      <span className="ml-1 text-[9px] bg-white text-indigo-600 rounded-full h-3.5 w-3.5 flex items-center justify-center">
+                      <span className="ml-1 text-xs bg-white text-indigo-600 rounded-full h-5 w-5 flex items-center justify-center">
                         {tab.badge}
                       </span>
                     ) : null}
