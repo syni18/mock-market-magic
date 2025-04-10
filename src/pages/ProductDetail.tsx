@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, getProductsByCategory, Product } from '@/data/products';
@@ -27,6 +26,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@/components/ui/carousel";
+import { ReviewForm } from '@/components/ReviewForm';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +34,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
@@ -47,14 +48,12 @@ const ProductDetail = () => {
       if (foundProduct) {
         setProduct(foundProduct);
         
-        // Get related products from the same category
         const related = getProductsByCategory(foundProduct.category)
           .filter(p => p.id !== foundProduct.id)
           .slice(0, 10);
           
         setRelatedProducts(related);
         
-        // Get suggested products (different category)
         const suggested = getProductsByCategory("electronics")
           .filter(p => p.id !== foundProduct.id)
           .slice(0, 10);
@@ -62,7 +61,6 @@ const ProductDetail = () => {
         setSuggestedProducts(suggested);
       }
       
-      // Reset quantity when product changes
       setQuantity(1);
     }
   }, [id]);
@@ -101,6 +99,34 @@ const ProductDetail = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleReviewSubmit = (reviewData: { rating: number; comment: string }) => {
+    console.log('Review submitted:', reviewData);
+    
+    try {
+      const existingReviews = localStorage.getItem('userReviews');
+      const reviews = existingReviews ? JSON.parse(existingReviews) : [];
+      
+      if (product) {
+        const newReview = {
+          id: Date.now().toString(),
+          productId: product.id,
+          productName: product.name,
+          productImage: product.image,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+          date: new Date().toISOString().split('T')[0]
+        };
+        
+        reviews.push(newReview);
+        localStorage.setItem('userReviews', JSON.stringify(reviews));
+      }
+    } catch (error) {
+      console.error('Error saving review:', error);
+    }
+    
+    setReviewFormOpen(false);
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col dark:bg-slate-900">
@@ -117,7 +143,6 @@ const ProductDetail = () => {
 
   const RelatedProductCard = ({ product }: { product: Product }) => {
     return isMobile ? (
-      // Mobile card layout (grid view 2 in a row)
       <div 
         className="flex flex-col gap-2 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700"
         onClick={() => navigateToProduct(product.id)}
@@ -180,7 +205,6 @@ const ProductDetail = () => {
         </div>
       </div>
     ) : (
-      // Desktop card layout (vertical 5 in a row)
       <div 
         className="flex flex-col gap-2 bg-white p-3 rounded-lg border shadow-sm dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() => navigateToProduct(product.id)}
@@ -241,13 +265,88 @@ const ProductDetail = () => {
     );
   };
 
+  const renderTabsContent = () => {
+    return (
+      <Tabs defaultValue="description">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="description">Description</TabsTrigger>
+          <TabsTrigger value="specs">Specifications</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="description" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
+          <h3 className="text-lg font-medium mb-4 dark:text-white">Product Description</h3>
+          <p className="text-gray-700 dark:text-gray-300">
+            {product.description}
+          </p>
+          <p className="text-gray-700 mt-4 dark:text-gray-300">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, 
+            vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, 
+            ac blandit elit tincidunt id.
+          </p>
+        </TabsContent>
+        
+        <TabsContent value="specs" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
+          <h3 className="text-lg font-medium mb-4 dark:text-white">Product Specifications</h3>
+          <table className="w-full">
+            <tbody>
+              <tr className="border-b dark:border-slate-700">
+                <td className="py-2 font-medium dark:text-white">Category</td>
+                <td className="py-2 capitalize dark:text-gray-300">{product.category}</td>
+              </tr>
+              <tr className="border-b dark:border-slate-700">
+                <td className="py-2 font-medium dark:text-white">Brand</td>
+                <td className="py-2 dark:text-gray-300">ShopWave</td>
+              </tr>
+              <tr className="border-b dark:border-slate-700">
+                <td className="py-2 font-medium dark:text-white">Material</td>
+                <td className="py-2 dark:text-gray-300">Premium quality</td>
+              </tr>
+              <tr className="border-b dark:border-slate-700">
+                <td className="py-2 font-medium dark:text-white">Warranty</td>
+                <td className="py-2 dark:text-gray-300">1 Year</td>
+              </tr>
+            </tbody>
+          </table>
+        </TabsContent>
+        
+        <TabsContent value="reviews" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
+          <h3 className="text-lg font-medium mb-4 dark:text-white">Customer Reviews</h3>
+          <div className="flex items-center mb-6">
+            <div className="flex items-center text-amber-500 mr-3">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={18}
+                  fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                  className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}
+                />
+              ))}
+            </div>
+            <span className="text-gray-900 font-medium dark:text-white">
+              {product.rating.toFixed(1)} out of 5
+            </span>
+          </div>
+          <p className="text-gray-600 italic dark:text-gray-400">
+            No reviews yet. Be the first to write a review.
+          </p>
+          <Button 
+            className="mt-4 dark:bg-indigo-700 dark:hover:bg-indigo-600"
+            onClick={() => setReviewFormOpen(true)}
+          >
+            Write a Review
+          </Button>
+        </TabsContent>
+      </Tabs>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col dark:bg-slate-900">
       <Navbar />
       
       <main className="flex-grow py-8">
         <div className="container">
-          {/* Breadcrumbs */}
           <div className="flex items-center space-x-2 mb-8 text-sm">
             <Link to="/" className="text-gray-500 hover:text-ecommerce-600 dark:text-gray-400 dark:hover:text-ecommerce-400">
               Home
@@ -260,9 +359,7 @@ const ProductDetail = () => {
             <span className="text-gray-900 font-medium dark:text-white">{product.name}</span>
           </div>
 
-          {/* Product Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {/* Product Image */}
             <div className="bg-white rounded-lg overflow-hidden border dark:bg-slate-800 dark:border-slate-700">
               <img
                 src={product.image}
@@ -271,7 +368,6 @@ const ProductDetail = () => {
               />
             </div>
 
-            {/* Product Info */}
             <div className="dark:text-white">
               <div className="flex justify-between items-start">
                 <h1 className="text-3xl font-bold mb-2 dark:text-white">{product.name}</h1>
@@ -314,7 +410,6 @@ const ProductDetail = () => {
                 {product.description}
               </p>
               
-              {/* Stock Status */}
               <div className="mb-6">
                 {product.stock > 0 ? (
                   <div className="text-green-600 flex items-center dark:text-green-500">
@@ -334,7 +429,6 @@ const ProductDetail = () => {
                 )}
               </div>
               
-              {/* Quantity Selector */}
               <div className="mb-6">
                 <label className="text-gray-700 font-medium block mb-2 dark:text-gray-300">Quantity</label>
                 <div className="flex items-center">
@@ -360,7 +454,6 @@ const ProductDetail = () => {
                 </div>
               </div>
               
-              {/* Add to Cart */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size={isMobile ? "default" : "lg"}
@@ -384,89 +477,20 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Tabs */}
           <div className="mb-16">
-            <Tabs defaultValue="description">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="specs">Specifications</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="description" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-lg font-medium mb-4 dark:text-white">Product Description</h3>
-                <p className="text-gray-700 dark:text-gray-300">
-                  {product.description}
-                </p>
-                <p className="text-gray-700 mt-4 dark:text-gray-300">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quam velit, 
-                  vulputate eu pharetra nec, mattis ac neque. Duis vulputate commodo lectus, 
-                  ac blandit elit tincidunt id.
-                </p>
-              </TabsContent>
-              
-              <TabsContent value="specs" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-lg font-medium mb-4 dark:text-white">Product Specifications</h3>
-                <table className="w-full">
-                  <tbody>
-                    <tr className="border-b dark:border-slate-700">
-                      <td className="py-2 font-medium dark:text-white">Category</td>
-                      <td className="py-2 capitalize dark:text-gray-300">{product.category}</td>
-                    </tr>
-                    <tr className="border-b dark:border-slate-700">
-                      <td className="py-2 font-medium dark:text-white">Brand</td>
-                      <td className="py-2 dark:text-gray-300">ShopWave</td>
-                    </tr>
-                    <tr className="border-b dark:border-slate-700">
-                      <td className="py-2 font-medium dark:text-white">Material</td>
-                      <td className="py-2 dark:text-gray-300">Premium quality</td>
-                    </tr>
-                    <tr className="border-b dark:border-slate-700">
-                      <td className="py-2 font-medium dark:text-white">Warranty</td>
-                      <td className="py-2 dark:text-gray-300">1 Year</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </TabsContent>
-              
-              <TabsContent value="reviews" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
-                <h3 className="text-lg font-medium mb-4 dark:text-white">Customer Reviews</h3>
-                <div className="flex items-center mb-6">
-                  <div className="flex items-center text-amber-500 mr-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={18}
-                        fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
-                        className={i < Math.floor(product.rating) ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-gray-900 font-medium dark:text-white">
-                    {product.rating.toFixed(1)} out of 5
-                  </span>
-                </div>
-                <p className="text-gray-600 italic dark:text-gray-400">
-                  No reviews yet. Be the first to write a review.
-                </p>
-                <Button className="mt-4">Write a Review</Button>
-              </TabsContent>
-            </Tabs>
+            {renderTabsContent()}
           </div>
 
-          {/* Related Products */}
           {relatedProducts.length > 0 && (
             <div className="mb-16">
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 dark:text-white`}>Related Products</h2>
               {isMobile ? (
-                // Mobile grid view - 2 products per row
                 <div className="grid grid-cols-2 gap-4">
                   {relatedProducts.slice(0, 6).map(relatedProduct => (
                     <RelatedProductCard key={relatedProduct.id} product={relatedProduct} />
                   ))}
                 </div>
               ) : (
-                // Desktop carousel view - 5 products per view
                 <Carousel
                   opts={{
                     align: "start",
@@ -490,19 +514,16 @@ const ProductDetail = () => {
             </div>
           )}
 
-          {/* Suggested Products */}
           {suggestedProducts.length > 0 && (
             <div>
               <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 dark:text-white`}>Suggested Products</h2>
               {isMobile ? (
-                // Mobile grid view - 2 products per row
                 <div className="grid grid-cols-2 gap-4">
                   {suggestedProducts.slice(0, 6).map(suggestedProduct => (
                     <RelatedProductCard key={suggestedProduct.id} product={suggestedProduct} />
                   ))}
                 </div>
               ) : (
-                // Desktop carousel view - 5 products per view
                 <Carousel
                   opts={{
                     align: "start",
@@ -529,6 +550,14 @@ const ProductDetail = () => {
       </main>
       
       <Footer />
+      
+      <ReviewForm
+        isOpen={reviewFormOpen}
+        onClose={() => setReviewFormOpen(false)}
+        onSubmit={handleReviewSubmit}
+        title="Write a Review"
+        productName={product ? product.name : ''}
+      />
     </div>
   );
 };
