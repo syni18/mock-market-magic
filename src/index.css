@@ -134,6 +134,41 @@
                     url('/hero-bg.jpg');
 }
 
+/* Dark mode styles for components */
+.dark .pagination-item {
+  @apply bg-gray-800 text-white hover:bg-gray-700;
+}
+
+.dark .pagination-item.active {
+  @apply bg-indigo-600 text-white;
+}
+
+.dark .tag {
+  @apply bg-gray-700 text-white;
+}
+
+.dark .stat-card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-gray-500;
+}
+
+.dark button[disabled] {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Specific dark mode overrides */
+.dark div.bg-white {
+  @apply bg-slate-800;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  @apply text-white;
+}
+
 /* Remove overflow scrollbars in user account on mobile */
 @media (max-width: 640px) {
   #user-account-content {

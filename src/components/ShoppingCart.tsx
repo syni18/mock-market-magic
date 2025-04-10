@@ -37,7 +37,7 @@ export function ShoppingCart() {
             variant="outline" 
             onClick={clearCart} 
             size="sm" 
-            className="text-xs flex items-center"
+            className="text-xs flex items-center dark:border-gray-600 dark:text-gray-200"
           >
             <Trash2 className="h-3 w-3 mr-1" />
             Clear
@@ -101,7 +101,7 @@ export function ShoppingCart() {
             variant="outline" 
             onClick={clearCart} 
             size="default" 
-            className="text-sm flex items-center"
+            className="text-sm flex items-center dark:border-gray-600 dark:text-gray-200"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Clear Cart

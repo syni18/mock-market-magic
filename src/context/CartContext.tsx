@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product } from '../data/products';
 import { toast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface CartItem {
   product: Product;
@@ -20,10 +21,30 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Save cart to localStorage
+const saveCartToStorage = (items: CartItem[]) => {
+  localStorage.setItem('cart', JSON.stringify(items));
+};
+
+// Get cart from localStorage
+const getCartFromStorage = (): CartItem[] => {
+  const savedCart = localStorage.getItem('cart');
+  if (savedCart) {
+    try {
+      return JSON.parse(savedCart);
+    } catch (error) {
+      console.error('Failed to parse cart from localStorage', error);
+      return [];
+    }
+  }
+  return [];
+};
+
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(getCartFromStorage);
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [cartCount, setCartCount] = useState<number>(0);
+  const isMobile = useIsMobile();
 
   // Calculate cart total and count whenever items change
   useEffect(() => {
@@ -32,6 +53,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setCartTotal(total);
     setCartCount(count);
+    
+    // Save to localStorage whenever cart changes
+    saveCartToStorage(items);
   }, [items]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
@@ -45,17 +69,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ? { ...item, quantity: item.quantity + quantity } 
             : item
         );
-        toast({
-          title: "Cart updated",
-          description: `${product.name} quantity updated in your cart`,
-        });
+        if (!isMobile) {
+          toast({
+            title: "Cart updated",
+            description: `${product.name} quantity updated in your cart`,
+          });
+        }
         return updatedItems;
       } else {
         // Product doesn't exist in cart, add it
-        toast({
-          title: "Added to cart",
-          description: `${product.name} added to your cart`,
-        });
+        if (!isMobile) {
+          toast({
+            title: "Added to cart",
+            description: `${product.name} added to your cart`,
+          });
+        }
         return [...prevItems, { product, quantity }];
       }
     });
@@ -64,7 +92,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const removeFromCart = (productId: number) => {
     setItems(prevItems => {
       const itemToRemove = prevItems.find(item => item.product.id === productId);
-      if (itemToRemove) {
+      if (itemToRemove && !isMobile) {
         toast({
           title: "Removed from cart",
           description: `${itemToRemove.product.name} removed from your cart`,
@@ -91,10 +119,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const clearCart = () => {
     setItems([]);
-    toast({
-      title: "Cart cleared",
-      description: "All items have been removed from your cart",
-    });
+    if (!isMobile) {
+      toast({
+        title: "Cart cleared",
+        description: "All items have been removed from your cart",
+      });
+    }
   };
 
   return (
