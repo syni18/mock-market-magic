@@ -169,8 +169,9 @@ export function ManageAddressTab() {
   
         try {
           // Google Maps API Call
+          const gcpMapKey = import.meta.env.VITE_GOOGLE_MAP_API_KEY;
           const response = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAP_API_KEY}&language=en`
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${gcpMapKey}&language=en`
           );
   
           if (!response.ok) {
