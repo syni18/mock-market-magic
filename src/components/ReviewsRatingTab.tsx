@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, MessageSquare, ShoppingBag, ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import { Star, MessageSquare, ShoppingBag, Edit, Trash2, Image } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/carousel';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ReviewForm } from './ReviewForm';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface Review {
   id: string;
@@ -24,6 +24,7 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  images?: string[];
 }
 
 interface PendingReview {
@@ -69,7 +70,8 @@ export function ReviewsRatingTab() {
         productImage: 'https://via.placeholder.com/150',
         rating: 4,
         comment: 'Great sound quality and comfortable to wear for long periods.',
-        date: '2023-08-15'
+        date: '2023-08-15',
+        images: []
       },
       {
         id: '2',
@@ -78,7 +80,8 @@ export function ReviewsRatingTab() {
         productImage: 'https://via.placeholder.com/150',
         rating: 5,
         comment: 'Amazing battery life and all the features I needed!',
-        date: '2023-09-22'
+        date: '2023-09-22',
+        images: []
       }
     ];
   });
@@ -170,12 +173,12 @@ export function ReviewsRatingTab() {
     setReviewFormOpen(true);
   };
 
-  const handleReviewSubmit = (reviewData: { rating: number; comment: string }) => {
+  const handleReviewSubmit = (reviewData: { rating: number; comment: string; images: string[] }) => {
     if (editingReview) {
       // Update existing review
       const updatedReviews = reviews.map(review => 
         review.id === editingReview.id 
-          ? { ...review, rating: reviewData.rating, comment: reviewData.comment }
+          ? { ...review, rating: reviewData.rating, comment: reviewData.comment, images: reviewData.images }
           : review
       );
       setReviews(updatedReviews);
@@ -190,7 +193,8 @@ export function ReviewsRatingTab() {
         productImage: selectedProduct.image,
         rating: reviewData.rating,
         comment: reviewData.comment,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        images: reviewData.images
       };
       
       const updatedReviews = [...reviews, newReview];
@@ -282,6 +286,27 @@ export function ReviewsRatingTab() {
                       <p className="text-gray-700 dark:text-gray-300">
                         {review.comment}
                       </p>
+                      
+                      {/* Review images */}
+                      {review.images && review.images.length > 0 && (
+                        <div className="mt-4">
+                          <div className="flex flex-wrap gap-2">
+                            {review.images.map((image, index) => (
+                              <div 
+                                key={index} 
+                                className="w-16 h-16 rounded overflow-hidden border border-gray-200 dark:border-gray-700"
+                              >
+                                <img 
+                                  src={image} 
+                                  alt={`Review image ${index + 1}`} 
+                                  className="w-full h-full object-cover cursor-pointer"
+                                  onClick={() => window.open(image, '_blank')}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -410,6 +435,7 @@ export function ReviewsRatingTab() {
         onSubmit={handleReviewSubmit}
         initialRating={editingReview?.rating || 0}
         initialComment={editingReview?.comment || ''}
+        initialImages={editingReview?.images || []}
         title={editingReview ? "Edit Review" : "Write a Review"}
         productName={editingReview?.productName || selectedProduct?.name}
       />

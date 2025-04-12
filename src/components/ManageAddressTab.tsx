@@ -4,33 +4,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MapPin, Plus, Edit2, Trash2, MapPinOff, Navigation } from 'lucide-react';
+import { MapPin, Plus, Edit2, Trash2, MapPinOff, Navigation, Home, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Address {
   id: string;
-  name: string;
+  addressType: 'home' | 'office';
   street: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
+  nearBy: string;
   isDefault: boolean;
 }
 
 export function ManageAddressTab() {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [addresses, setAddresses] = useState<Address[]>([]);
   
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState<string | null>(null);
   const [newAddress, setNewAddress] = useState<Omit<Address, 'id'>>({
-    name: '',
+    addressType: 'home',
     street: '',
     city: '',
     state: '',
     zipCode: '',
     country: '',
+    nearBy: '',
     isDefault: false
   });
   
@@ -63,10 +68,12 @@ export function ManageAddressTab() {
         )
       );
       setIsEditingAddress(null);
-      toast({
-        title: "Address updated",
-        description: "Your address has been updated successfully."
-      });
+      if (!isMobile) {
+        toast({
+          title: "Address updated",
+          description: "Your address has been updated successfully."
+        });
+      }
     } else {
       // Create new address
       const id = Date.now().toString();
@@ -79,20 +86,23 @@ export function ManageAddressTab() {
       }
       
       setAddresses(prev => [...prev, { ...newAddress, id, isDefault: newAddress.isDefault || prev.length === 0 }]);
-      toast({
-        title: "Address added",
-        description: "Your new address has been added successfully."
-      });
+      if (!isMobile) {
+        toast({
+          title: "Address added",
+          description: "Your new address has been added successfully."
+        });
+      }
     }
     
     setIsAddingAddress(false);
     setNewAddress({
-      name: '',
+      addressType: 'home',
       street: '',
       city: '',
       state: '',
       zipCode: '',
       country: '',
+      nearBy: '',
       isDefault: false
     });
   };
@@ -119,10 +129,12 @@ export function ManageAddressTab() {
       return filteredAddresses;
     });
     
-    toast({
-      title: "Address deleted",
-      description: "Your address has been removed successfully."
-    });
+    if (!isMobile) {
+      toast({
+        title: "Address deleted",
+        description: "Your address has been removed successfully."
+      });
+    }
   };
 
   const setDefaultAddress = (id: string) => {
@@ -132,26 +144,32 @@ export function ManageAddressTab() {
         isDefault: addr.id === id
       }))
     );
-    toast({
-      title: "Default address updated",
-      description: "Your default address has been updated."
-    });
+    if (!isMobile) {
+      toast({
+        title: "Default address updated",
+        description: "Your default address has been updated."
+      });
+    }
   };
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      toast({
-        title: "Not supported",
-        description: "Geolocation is not supported by your browser.",
-        variant: "destructive",
-      });
+      if (!isMobile) {
+        toast({
+          title: "Not supported",
+          description: "Geolocation is not supported by your browser.",
+          variant: "destructive",
+        });
+      }
       return;
     }
   
-    toast({
-      title: "Detecting location",
-      description: "Please allow location access to auto-fill your address.",
-    });
+    if (!isMobile) {
+      toast({
+        title: "Detecting location",
+        description: "Please allow location access to auto-fill your address.",
+      });
+    }
   
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -159,11 +177,13 @@ export function ManageAddressTab() {
   
         // Check if location is too inaccurate (e.g., > 1000 meters)
         if (accuracy > 1000) {
-          toast({
-            title: "Low accuracy location",
-            description: "We couldn't get a precise location. Please enter manually.",
-            variant: "destructive",
-          });
+          if (!isMobile) {
+            toast({
+              title: "Low accuracy location",
+              description: "We couldn't get a precise location. Please enter manually.",
+              variant: "destructive",
+            });
+          }
           return;
         }
   
@@ -195,20 +215,24 @@ export function ManageAddressTab() {
               country: getComponent("country") || "",
             }));
   
-            toast({
-              title: "Location detected",
-              description: "Your address has been auto-filled.",
-            });
+            if (!isMobile) {
+              toast({
+                title: "Location detected",
+                description: "Your address has been auto-filled.",
+              });
+            }
           } else {
             throw new Error("No address results found");
           }
         } catch (err) {
           console.error("Reverse geocoding error:", err);
-          toast({
-            title: "Could not complete address lookup",
-            description: "Got your location, but couldn't convert to an address. Please fill manually.",
-            variant: "destructive",
-          });
+          if (!isMobile) {
+            toast({
+              title: "Could not complete address lookup",
+              description: "Got your location, but couldn't convert to an address. Please fill manually.",
+              variant: "destructive",
+            });
+          }
         }
       },
       (error) => {
@@ -225,11 +249,13 @@ export function ManageAddressTab() {
             errorMessage += " Location request timed out.";
             break;
         }
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
+        if (!isMobile) {
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
       },
       {
         enableHighAccuracy: true,
@@ -243,8 +269,8 @@ export function ManageAddressTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center truncate">
-          <MapPin className="min-w-5 h-5 mr-2 text-indigo-600" />
+        <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center truncate dark:text-white">
+          <MapPin className="min-w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" />
           <span className="truncate">Manage Addresses</span>
         </h2>
         <Button 
@@ -253,12 +279,13 @@ export function ManageAddressTab() {
             setIsAddingAddress(true);
             setIsEditingAddress(null);
             setNewAddress({
-              name: '',
+              addressType: 'home',
               street: '',
               city: '',
               state: '',
               zipCode: '',
               country: '',
+              nearBy: '',
               isDefault: false
             });
           }}
@@ -269,16 +296,16 @@ export function ManageAddressTab() {
       </div>
       
       {addresses.length === 0 && !isAddingAddress && (
-        <Card className="bg-white shadow-sm border-slate-100 p-4 md:p-8 text-center">
+        <Card className="bg-white shadow-sm border-slate-100 p-4 md:p-8 text-center dark:bg-slate-800 dark:border-slate-700">
           <div className="text-center py-6 md:py-8">
-            <div className="inline-flex justify-center items-center p-4 bg-indigo-50 rounded-full mb-6">
-              <MapPinOff className="h-8 w-8 text-indigo-600" />
+            <div className="inline-flex justify-center items-center p-4 bg-indigo-50 rounded-full mb-6 dark:bg-indigo-900">
+              <MapPinOff className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2">No addresses saved yet</h3>
-            <p className="text-gray-500 mb-6 text-sm md:text-base">Add your first address to make checkout faster</p>
+            <h3 className="text-lg md:text-xl font-bold mb-2 dark:text-white">No addresses saved yet</h3>
+            <p className="text-gray-500 mb-6 text-sm md:text-base dark:text-gray-400">Add your first address to make checkout faster</p>
             <Button 
               onClick={() => setIsAddingAddress(true)}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add New Address
@@ -288,87 +315,118 @@ export function ManageAddressTab() {
       )}
       
       {isAddingAddress ? (
-        <Card className="bg-white shadow-sm border-slate-100">
+        <Card className="bg-white shadow-sm border-slate-100 dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle>{isEditingAddress ? 'Edit Address' : 'Add New Address'}</CardTitle>
+            <CardTitle className="flex items-center dark:text-white">
+              {isEditingAddress ? 'Edit Address' : 'Add New Address'}
+              <Button 
+                variant="outline" 
+                className="ml-auto text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
+                onClick={detectLocation}
+                size="sm"
+              >
+                <Navigation className="mr-2 h-4 w-4" />
+                Detect My Location
+              </Button>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Address Name</Label>
-                <Input 
-                  id="name" 
-                  name="name" 
-                  value={newAddress.name} 
-                  onChange={handleAddressChange} 
-                  placeholder="Home, Work, etc."
-                />
-              </div>
-              <div className="flex items-end space-x-2">
-                <Button 
-                  variant="outline" 
-                  className="mb-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                  onClick={detectLocation}
-                >
-                  <Navigation className="mr-2 h-4 w-4" />
-                  Detect My Location
-                </Button>
-              </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium dark:text-white">Address Type</Label>
+              <RadioGroup
+                value={newAddress.addressType}
+                onValueChange={(value: 'home' | 'office') => 
+                  setNewAddress(prev => ({ ...prev, addressType: value }))
+                }
+                className="flex flex-row gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="home" id="home" />
+                  <Label htmlFor="home" className="flex items-center gap-1.5 cursor-pointer dark:text-white">
+                    <Home className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    Home
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="office" id="office" />
+                  <Label htmlFor="office" className="flex items-center gap-1.5 cursor-pointer dark:text-white">
+                    <Building2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    Office
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="street">Street Address</Label>
+              <Label htmlFor="street" className="dark:text-white">Street Address</Label>
               <Input 
                 id="street" 
                 name="street" 
                 value={newAddress.street} 
                 onChange={handleAddressChange} 
                 placeholder="123 Main St"
+                className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="nearBy" className="dark:text-white">Near By</Label>
+              <Input 
+                id="nearBy" 
+                name="nearBy" 
+                value={newAddress.nearBy} 
+                onChange={handleAddressChange} 
+                placeholder="Near Shopping Mall, Landmark, etc."
+                className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city" className="dark:text-white">City</Label>
                 <Input 
                   id="city" 
                   name="city" 
                   value={newAddress.city} 
                   onChange={handleAddressChange} 
                   placeholder="New York"
+                  className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="state">State/Province</Label>
+                <Label htmlFor="state" className="dark:text-white">State/Province</Label>
                 <Input 
                   id="state" 
                   name="state" 
                   value={newAddress.state} 
                   onChange={handleAddressChange} 
                   placeholder="NY"
+                  className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                 />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="zipCode">ZIP/Postal Code</Label>
+                <Label htmlFor="zipCode" className="dark:text-white">ZIP/Postal Code</Label>
                 <Input 
                   id="zipCode" 
                   name="zipCode" 
                   value={newAddress.zipCode} 
                   onChange={handleAddressChange} 
                   placeholder="10001"
+                  className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="country" className="dark:text-white">Country</Label>
                 <Input 
                   id="country" 
                   name="country" 
                   value={newAddress.country} 
                   onChange={handleAddressChange} 
                   placeholder="USA"
+                  className="dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                 />
               </div>
             </div>
@@ -377,13 +435,13 @@ export function ManageAddressTab() {
               <input
                 type="checkbox"
                 id="default"
-                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700"
                 checked={newAddress.isDefault}
                 onChange={() => 
                   setNewAddress(prev => ({ ...prev, isDefault: !prev.isDefault }))
                 }
               />
-              <Label htmlFor="default" className="text-sm font-medium">
+              <Label htmlFor="default" className="text-sm font-medium dark:text-white">
                 Set as default address
               </Label>
             </div>
@@ -395,11 +453,12 @@ export function ManageAddressTab() {
                   setIsAddingAddress(false);
                   setIsEditingAddress(null);
                 }}
+                className="dark:border-slate-700 dark:text-white dark:hover:bg-slate-700"
               >
                 Cancel
               </Button>
               <Button 
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800"
                 onClick={saveAddress}
                 disabled={!newAddress.street || !newAddress.city || !newAddress.zipCode}
               >
@@ -411,25 +470,36 @@ export function ManageAddressTab() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {addresses.map(address => (
-            <Card key={address.id} className="bg-white shadow-sm border-slate-100">
+            <Card key={address.id} className="bg-white shadow-sm border-slate-100 dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start">
                   <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" />
+                    <div className="mr-2 mt-0.5">
+                      {address.addressType === 'home' ? (
+                        <Home className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      ) : (
+                        <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      )}
+                    </div>
                     <div>
                       <div className="flex items-center">
-                        <h3 className="font-semibold text-sm md:text-base">{address.name}</h3>
+                        <h3 className="font-semibold text-sm md:text-base dark:text-white">
+                          {address.addressType === 'home' ? 'Home' : 'Office'}
+                        </h3>
                         {address.isDefault && (
-                          <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                          <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full dark:bg-indigo-900 dark:text-indigo-300">
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-xs md:text-sm text-gray-600 mt-1">{address.street}</p>
-                      <p className="text-xs md:text-sm text-gray-600">
+                      <p className="text-xs md:text-sm text-gray-600 mt-1 dark:text-gray-300">{address.street}</p>
+                      {address.nearBy && (
+                        <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Near: {address.nearBy}</p>
+                      )}
+                      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">
                         {address.city}, {address.state} {address.zipCode}
                       </p>
-                      <p className="text-xs md:text-sm text-gray-600">{address.country}</p>
+                      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">{address.country}</p>
                     </div>
                   </div>
                 </div>
@@ -440,7 +510,7 @@ export function ManageAddressTab() {
                       variant="outline"
                       size="sm"
                       onClick={() => setDefaultAddress(address.id)}
-                      className="text-indigo-600 hover:bg-indigo-50 border-indigo-200 text-xs md:text-sm"
+                      className="text-indigo-600 hover:bg-indigo-50 border-indigo-200 text-xs md:text-sm dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
                     >
                       Set as Default
                     </Button>
@@ -449,7 +519,7 @@ export function ManageAddressTab() {
                     variant="outline"
                     size="sm"
                     onClick={() => editAddress(address)}
-                    className="text-slate-700 hover:bg-slate-50 text-xs md:text-sm"
+                    className="text-slate-700 hover:bg-slate-50 text-xs md:text-sm dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
                   >
                     <Edit2 className="h-4 w-4 mr-1" />
                     Edit
@@ -459,7 +529,7 @@ export function ManageAddressTab() {
                     size="sm"
                     onClick={() => deleteAddress(address.id)}
                     disabled={address.isDefault}
-                    className={`text-xs md:text-sm ${address.isDefault ? 'text-slate-400' : 'text-red-500 hover:bg-red-50 border-red-200'}`}
+                    className={`text-xs md:text-sm ${address.isDefault ? 'text-slate-400 dark:text-slate-600' : 'text-red-500 hover:bg-red-50 border-red-200 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-900/30'}`}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete
