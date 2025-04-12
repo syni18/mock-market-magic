@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,6 @@ export function ManageAddressTab() {
     isDefault: false
   });
   
-  // Load addresses from localStorage on component mount
   useEffect(() => {
     const savedAddresses = localStorage.getItem('userAddresses');
     if (savedAddresses) {
@@ -47,7 +45,6 @@ export function ManageAddressTab() {
     }
   }, []);
   
-  // Save addresses to localStorage when they change
   useEffect(() => {
     localStorage.setItem('userAddresses', JSON.stringify(addresses));
   }, [addresses]);
@@ -59,7 +56,6 @@ export function ManageAddressTab() {
   
   const saveAddress = () => {
     if (isEditingAddress) {
-      // Update existing address
       setAddresses(prev => 
         prev.map(addr => 
           addr.id === isEditingAddress 
@@ -75,10 +71,8 @@ export function ManageAddressTab() {
         });
       }
     } else {
-      // Create new address
       const id = Date.now().toString();
       
-      // If this is the first address or is set as default
       if (addresses.length === 0 || newAddress.isDefault) {
         setAddresses(prev => 
           prev.map(addr => ({ ...addr, isDefault: false }))
@@ -118,8 +112,6 @@ export function ManageAddressTab() {
     setAddresses(prev => {
       const filteredAddresses = prev.filter(addr => addr.id !== id);
       
-      // If we're deleting the default address and there are other addresses,
-      // set the first remaining address as default
       if (addressToDelete?.isDefault && filteredAddresses.length > 0) {
         return filteredAddresses.map((addr, index) => 
           index === 0 ? { ...addr, isDefault: true } : addr
@@ -175,7 +167,6 @@ export function ManageAddressTab() {
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
   
-        // Check if location is too inaccurate (e.g., > 1000 meters)
         if (accuracy > 1000) {
           if (!isMobile) {
             toast({
@@ -188,7 +179,6 @@ export function ManageAddressTab() {
         }
   
         try {
-          // Google Maps API Call
           const gcpMapKey = import.meta.env.VITE_GOOGLE_MAP_API_KEY;
           const response = await fetch(
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${gcpMapKey}&language=en`
@@ -265,7 +255,6 @@ export function ManageAddressTab() {
     );
   };
 
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -317,18 +306,33 @@ export function ManageAddressTab() {
       {isAddingAddress ? (
         <Card className="bg-white shadow-sm border-slate-100 dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center dark:text-white">
-              {isEditingAddress ? 'Edit Address' : 'Add New Address'}
-              <Button 
-                variant="outline" 
-                className="ml-auto text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
-                onClick={detectLocation}
-                size="sm"
-              >
-                <Navigation className="mr-2 h-4 w-4" />
-                Detect My Location
-              </Button>
-            </CardTitle>
+            <div className="w-full">
+              <CardTitle className="flex items-center flex-wrap dark:text-white">
+                <span className="mr-auto">{isEditingAddress ? 'Edit Address' : 'Add New Address'}</span>
+                {!isMobile && (
+                  <Button 
+                    variant="outline" 
+                    className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
+                    onClick={detectLocation}
+                    size="sm"
+                  >
+                    <Navigation className="mr-2 h-4 w-4" />
+                    Detect My Location
+                  </Button>
+                )}
+              </CardTitle>
+              {isMobile && (
+                <Button 
+                  variant="outline" 
+                  className="mt-2 w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
+                  onClick={detectLocation}
+                  size="sm"
+                >
+                  <Navigation className="mr-2 h-4 w-4" />
+                  Detect My Location
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
