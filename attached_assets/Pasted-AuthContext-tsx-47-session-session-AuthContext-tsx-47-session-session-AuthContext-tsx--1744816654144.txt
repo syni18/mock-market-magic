@@ -1,0 +1,254 @@
+AuthContext.tsx:47 session {session: {…}}
+AuthContext.tsx:47 session {session: {…}}
+AuthContext.tsx:61 Auth state changed: INITIAL_SESSION
+AuthContext.tsx:61 Auth state changed: INITIAL_SESSION
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:47 session {session: {…}}
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:61 Auth state changed: INITIAL_SESSION
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:47 session {session: {…}}
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:61 Auth state changed: INITIAL_SESSION
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:47 session {session: {…}}
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+AuthContext.tsx:61 Auth state changed: INITIAL_SESSION
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           GET https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?select=*&id=eq.0326cc1f-da5d-4ea9-b193-7ffa5165324e 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+@supabase_supabase-js.js?v=cfa56110:3900 
+            
+            
+           POST https://jrxovfsrznnshmudpoby.supabase.co/rest/v1/profiles?columns=%22id%22%2C%22email%22%2C%22full_name%22%2C%22avatar_url%22%2C%22phone%22%2C%22created_at%22%2C%22updated_at%22 404 (Not Found)
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3900
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3921
+fulfilled @ @supabase_supabase-js.js?v=cfa56110:3873
+Promise.then
+step @ @supabase_supabase-js.js?v=cfa56110:3886
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3888
+__awaiter6 @ @supabase_supabase-js.js?v=cfa56110:3870
+(anonymous) @ @supabase_supabase-js.js?v=cfa56110:3911
+then @ @supabase_supabase-js.js?v=cfa56110:89
+use-toast.ts:136 Warning: Cannot update a component (`AuthProvider`) while rendering a different component (`WishlistProvider`). To locate the bad setState() call inside `WishlistProvider`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at WishlistProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/src/context/WishlistContext.tsx:15:36)
+    at CartProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/src/context/CartContext.tsx:35:32)
+    at AuthProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/src/context/AuthContext.tsx:16:32)
+    at Router (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=cfa56110:4451:15)
+    at BrowserRouter (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=cfa56110:5196:5)
+    at Provider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/node_modules/.vite/deps/chunk-KF7TDO2V.js?v=cfa56110:38:15)
+    at TooltipProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cfa56110:61:5)
+    at ThemeProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/src/context/ThemeContext.tsx:13:33)
+    at QueryClientProvider (https://d556926c-d9e4-43b3-9fe0-c616d2a53ac9-00-32bgxceinh2di.pike.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=cfa56110:2794:3)
+    at App
+printWarning @ chunk-FJ2A54M7.js?v=cfa56110:521
+error @ chunk-FJ2A54M7.js?v=cfa56110:505
+warnAboutRenderPhaseUpdatesInDEV @ chunk-FJ2A54M7.js?v=cfa56110:19793
+scheduleUpdateOnFiber @ chunk-FJ2A54M7.js?v=cfa56110:18546
+dispatchSetState @ chunk-FJ2A54M7.js?v=cfa56110:12403
+(anonymous) @ use-toast.ts:136
+dispatch @ use-toast.ts:135
+toast @ use-toast.ts:152
+(anonymous) @ WishlistContext.tsx:69
+basicStateReducer @ chunk-FJ2A54M7.js?v=cfa56110:11703
+updateReducer @ chunk-FJ2A54M7.js?v=cfa56110:11794
+updateState @ chunk-FJ2A54M7.js?v=cfa56110:12021
+useState @ chunk-FJ2A54M7.js?v=cfa56110:12753
+useState @ chunk-BG45W2ER.js?v=cfa56110:1066
+WishlistProvider @ WishlistContext.tsx:19
+renderWithHooks @ chunk-FJ2A54M7.js?v=cfa56110:11548
+updateFunctionComponent @ chunk-FJ2A54M7.js?v=cfa56110:14582
+beginWork @ chunk-FJ2A54M7.js?v=cfa56110:15924
+beginWork$1 @ chunk-FJ2A54M7.js?v=cfa56110:19753
+performUnitOfWork @ chunk-FJ2A54M7.js?v=cfa56110:19198
+workLoopSync @ chunk-FJ2A54M7.js?v=cfa56110:19137
+renderRootSync @ chunk-FJ2A54M7.js?v=cfa56110:19116
+performSyncWorkOnRoot @ chunk-FJ2A54M7.js?v=cfa56110:18874
+flushSyncCallbacks @ chunk-FJ2A54M7.js?v=cfa56110:9119
+(anonymous) @ chunk-FJ2A54M7.js?v=cfa56110:18627
