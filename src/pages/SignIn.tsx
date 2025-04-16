@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import { signInSchema, signUpSchema, phoneSchema, otpSchema } from '@/utils/ValidationSchema';
+import { log } from 'console';
 
 const SignIn = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -96,7 +97,8 @@ const SignIn = () => {
 
   // Handle Google sign in
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
+    const {data} = await signInWithGoogle();
+    console.log("Google sign in data SignIn.tsx:", data);
   };
 
   return (

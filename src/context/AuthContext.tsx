@@ -1,20 +1,23 @@
-
-import { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { createContext, useContext, useEffect, useState } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{error: Error | null}>;
-  signInWithPhone: (phone: string) => Promise<{error: Error | null}>;
-  verifyOtp: (phone: string, token: string) => Promise<{error: Error | null}>;
-  signUp: (email: string, password: string, userData?: Record<string, any>) => Promise<{error: Error | null, user: User | null}>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithPhone: (phone: string) => Promise<{ error: Error | null }>;
+  verifyOtp: (phone: string, token: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    userData?: Record<string, any>,
+  ) => Promise<{ error: Error | null; user: User | null }>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<{error: Error | null}>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
   isAuthenticated: boolean;
 };
 
@@ -33,98 +36,102 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const setupAuth = async () => {
       setIsLoading(true);
-      
+
       try {
         // Check for active session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
-          console.error('Error getting session:', error.message);
+          console.error("Error getting session:", error.message);
           setIsLoading(false);
           return;
         }
-        
+
         if (session) {
           setSession(session);
           setUser(session.user);
           setIsAuthenticated(true);
-          
+
           // Sync user data with profiles table
           await syncUserProfile(session.user);
         }
-        
+
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            console.log('Auth state changed:', event);
-            setSession(session);
-            setUser(session?.user ?? null);
-            setIsAuthenticated(!!session);
-            
-            if (session?.user) {
-              // Sync user profile on sign in
-              await syncUserProfile(session.user);
-              
-              // If it's a sign in event, navigate to home page
-              if (event === 'SIGNED_IN') {
-                toast({
-                  title: "Welcome!",
-                  description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
-                });
-                
-                // Navigate to home page
-                navigate("/");
-              }
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth state changed:", event);
+          setSession(session);
+          setUser(session?.user ?? null);
+          setIsAuthenticated(!!session);
+
+          if (session?.user) {
+            // Sync user profile on sign in
+            await syncUserProfile(session.user);
+
+            // If it's a sign in event, navigate to home page
+            if (event === "SIGNED_IN") {
+              toast({
+                title: "Welcome!",
+                description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || "User"}!`,
+              });
+
+              // Navigate to home page
+              navigate("/");
             }
-            
-            setIsLoading(false);
           }
-        );
-        
+
+          setIsLoading(false);
+        });
+
         setIsLoading(false);
-        
+
         // Cleanup subscription
         return () => {
           subscription.unsubscribe();
         };
       } catch (error) {
-        console.error('Auth setup error:', error);
+        console.error("Auth setup error:", error);
         setIsLoading(false);
       }
     };
-    
+
     setupAuth();
   }, [navigate, toast]);
 
   // Helper function to sync user data with profiles table
   const syncUserProfile = async (user: User) => {
     if (!user) return;
-    
+
     try {
       // Check if user profile exists
       const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
         .single();
-      
+
       if (existingProfile) {
         // Update existing profile with latest user data
         await supabase
-          .from('profiles')
+          .from("profiles")
           .update({
             email: user.email,
-            full_name: user.user_metadata?.full_name || existingProfile.full_name,
-            avatar_url: user.user_metadata?.avatar_url || existingProfile.avatar_url,
+            full_name:
+              user.user_metadata?.full_name || existingProfile.full_name,
+            avatar_url:
+              user.user_metadata?.avatar_url || existingProfile.avatar_url,
             phone: user.phone || existingProfile.phone,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id);
+          .eq("id", user.id);
       } else {
         // Create new profile
-        await supabase
-          .from('profiles')
-          .insert([{
+        await supabase.from("profiles").insert([
+          {
             id: user.id,
             email: user.email,
             full_name: user.user_metadata?.full_name || null,
@@ -132,31 +139,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             phone: user.phone || null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          }]);
+          },
+        ]);
       }
     } catch (error) {
-      console.error('Error syncing user profile:', error);
+      console.error("Error syncing user profile:", error);
     }
   };
 
   // Sign in with email
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await import('@/api/auth').then(api => api.signIn(email, password));
+      const { error } = await import("@/api/auth").then((api) =>
+        api.signIn(email, password),
+      );
       if (error) throw error;
-      
+
       toast({
         title: "Welcome back!",
         description: "You've been successfully signed in.",
       });
-      
-      navigate('/');
+
+      navigate("/");
       return { error: null };
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error("Sign in error:", error);
       toast({
         title: "Sign in failed",
-        description: error instanceof Error ? error.message : "Something went wrong.",
+        description:
+          error instanceof Error ? error.message : "Something went wrong.",
         variant: "destructive",
       });
       return { error: error as Error };
@@ -166,24 +177,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with Google
   const signInWithGoogle = async () => {
     try {
-      const { error } = await import('@/api/auth').then(api => api.signInWithGoogle());
+      const { data, error } = await import("@/api/auth").then((api) =>
+        api.signInWithGoogle(),
+      );
       if (error) throw error;
+      console.log("Google sign in data Auth Context:", data);
       return { error: null };
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error("Google sign in error:", error);
       toast({
         title: "Google sign in failed",
-        description: error instanceof Error ? error.message : "Something went wrong.",
+        description:
+          error instanceof Error ? error.message : "Something went wrong.",
         variant: "destructive",
       });
-      return { error: error as Error };
+      return {data, error: error as Error };
     }
   };
 
   // Sign in with phone
   const signInWithPhone = async (phone: string) => {
     try {
-      const { error } = await import('@/api/auth').then(api => api.signInWithPhone(phone));
+      const { error } = await import("@/api/auth").then((api) =>
+        api.signInWithPhone(phone),
+      );
       if (error) throw error;
       toast({
         title: "Verification code sent",
@@ -191,10 +208,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       return { error: null };
     } catch (error) {
-      console.error('Phone sign in error:', error);
+      console.error("Phone sign in error:", error);
       toast({
         title: "Failed to send code",
-        description: error instanceof Error ? error.message : "Something went wrong.",
+        description:
+          error instanceof Error ? error.message : "Something went wrong.",
         variant: "destructive",
       });
       return { error: error as Error };
@@ -204,19 +222,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Verify phone OTP
   const verifyOtp = async (phone: string, token: string) => {
     try {
-      const { error } = await import('@/api/auth').then(api => api.verifyOtp(phone, token));
+      const { error } = await import("@/api/auth").then((api) =>
+        api.verifyOtp(phone, token),
+      );
       if (error) throw error;
       toast({
         title: "Successfully verified",
         description: "Your phone number has been verified.",
       });
-      navigate('/');
+      navigate("/");
       return { error: null };
     } catch (error) {
-      console.error('OTP verification error:', error);
+      console.error("OTP verification error:", error);
       toast({
         title: "Verification failed",
-        description: error instanceof Error ? error.message : "Invalid or expired code.",
+        description:
+          error instanceof Error ? error.message : "Invalid or expired code.",
         variant: "destructive",
       });
       return { error: error as Error };
@@ -224,9 +245,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Sign up
-  const signUp = async (email: string, password: string, userData?: Record<string, any>) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    userData?: Record<string, any>,
+  ) => {
     try {
-      const { data, error } = await import('@/api/auth').then(api => api.signUp(email, password, userData));
+      const { data, error } = await import("@/api/auth").then((api) =>
+        api.signUp(email, password, userData),
+      );
       if (error) throw error;
       toast({
         title: "Account created",
@@ -234,10 +261,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       return { error: null, user: data?.user ?? null };
     } catch (error) {
-      console.error('Sign up error:', error);
+      console.error("Sign up error:", error);
       toast({
         title: "Sign up failed",
-        description: error instanceof Error ? error.message : "Something went wrong.",
+        description:
+          error instanceof Error ? error.message : "Something went wrong.",
         variant: "destructive",
       });
       return { error: error as Error, user: null };
@@ -247,15 +275,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out
   const signOut = async () => {
     try {
-      const { error } = await import('@/api/auth').then(api => api.signOut());
+      const { error } = await import("@/api/auth").then((api) => api.signOut());
       if (error) throw error;
       toast({
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
-      navigate('/signin');
+      navigate("/signin");
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error("Sign out error:", error);
       toast({
         title: "Sign out failed",
         description: "Something went wrong.",
@@ -283,7 +311,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
