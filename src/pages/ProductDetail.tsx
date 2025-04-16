@@ -39,28 +39,28 @@ const ProductDetail = () => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
+
   useEffect(() => {
     if (id) {
       const productId = parseInt(id, 10);
       const foundProduct = getProductById(productId);
-      
+
       if (foundProduct) {
         setProduct(foundProduct);
-        
+
         const related = getProductsByCategory(foundProduct.category)
           .filter(p => p.id !== foundProduct.id)
           .slice(0, 10);
-          
+
         setRelatedProducts(related);
-        
+
         const suggested = getProductsByCategory("electronics")
           .filter(p => p.id !== foundProduct.id)
           .slice(0, 10);
-        
+
         setSuggestedProducts(suggested);
       }
-      
+
       setQuantity(1);
     }
   }, [id]);
@@ -86,7 +86,7 @@ const ProductDetail = () => {
 
   const handleWishlistToggle = () => {
     if (!product) return;
-    
+
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
     } else {
@@ -101,11 +101,11 @@ const ProductDetail = () => {
 
   const handleReviewSubmit = (reviewData: { rating: number; comment: string }) => {
     console.log('Review submitted:', reviewData);
-    
+
     try {
       const existingReviews = localStorage.getItem('userReviews');
       const reviews = existingReviews ? JSON.parse(existingReviews) : [];
-      
+
       if (product) {
         const newReview = {
           id: Date.now().toString(),
@@ -116,14 +116,14 @@ const ProductDetail = () => {
           comment: reviewData.comment,
           date: new Date().toISOString().split('T')[0]
         };
-        
+
         reviews.push(newReview);
         localStorage.setItem('userReviews', JSON.stringify(reviews));
       }
     } catch (error) {
       console.error('Error saving review:', error);
     }
-    
+
     setReviewFormOpen(false);
   };
 
@@ -159,7 +159,7 @@ const ProductDetail = () => {
             <h3 className="font-medium text-sm mb-1 line-clamp-1 dark:text-white">
               {product.name}
             </h3>
-            
+
             <div className="flex items-center mb-1">
               <div className="flex items-center text-amber-500 mr-2">
                 {[...Array(5)].map((_, i) => (
@@ -175,12 +175,12 @@ const ProductDetail = () => {
                 {product.rating.toFixed(1)}
               </span>
             </div>
-            
+
             <p className="text-sm font-bold text-gray-900 mb-1 dark:text-white">
-              ${product.price.toFixed(2)}
+              ₹{(product.price * 83).toFixed(2)}
             </p>
           </div>
-          
+
           <div className="mt-auto pt-1">
             <Button 
               onClick={(e) => {
@@ -219,7 +219,7 @@ const ProductDetail = () => {
         <h3 className="font-medium text-base mt-2 line-clamp-1 dark:text-white">
           {product.name}
         </h3>
-        
+
         <div className="flex items-center my-1">
           <div className="flex items-center text-amber-500 mr-2">
             {[...Array(5)].map((_, i) => (
@@ -235,11 +235,11 @@ const ProductDetail = () => {
             {product.rating.toFixed(1)}
           </span>
         </div>
-        
+
         <p className="text-base font-bold text-gray-900 my-1 dark:text-white">
-          ${product.price.toFixed(2)}
+          ₹{(product.price * 83).toFixed(2)}
         </p>
-        
+
         <div className="mt-auto pt-1">
           <Button 
             onClick={(e) => {
@@ -273,7 +273,7 @@ const ProductDetail = () => {
           <TabsTrigger value="specs">Specifications</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="description" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
           <h3 className="text-lg font-medium mb-4 dark:text-white">Product Description</h3>
           <p className="text-gray-700 dark:text-gray-300">
@@ -285,7 +285,7 @@ const ProductDetail = () => {
             ac blandit elit tincidunt id.
           </p>
         </TabsContent>
-        
+
         <TabsContent value="specs" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
           <h3 className="text-lg font-medium mb-4 dark:text-white">Product Specifications</h3>
           <table className="w-full">
@@ -309,7 +309,7 @@ const ProductDetail = () => {
             </tbody>
           </table>
         </TabsContent>
-        
+
         <TabsContent value="reviews" className="p-6 bg-white border rounded-b-lg dark:bg-slate-800 dark:border-slate-700">
           <h3 className="text-lg font-medium mb-4 dark:text-white">Customer Reviews</h3>
           <div className="flex items-center mb-6">
@@ -344,7 +344,7 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen flex flex-col dark:bg-slate-900">
       <Navbar />
-      
+
       <main className="flex-grow py-8">
         <div className="container">
           <div className="flex items-center space-x-2 mb-8 text-sm">
@@ -385,7 +385,7 @@ const ProductDetail = () => {
                   />
                 </Button>
               </div>
-              
+
               <div className="flex items-center mb-4">
                 <div className="flex items-center text-amber-500 mr-2">
                   {[...Array(5)].map((_, i) => (
@@ -401,15 +401,15 @@ const ProductDetail = () => {
                   {product.rating.toFixed(1)} rating
                 </span>
               </div>
-              
+
               <div className="text-3xl font-bold text-gray-900 mb-4 dark:text-white">
-                ${product.price.toFixed(2)}
+                ₹{(product.price * 83).toFixed(2)}
               </div>
-              
+
               <p className="text-gray-700 mb-6 dark:text-gray-300">
                 {product.description}
               </p>
-              
+
               <div className="mb-6">
                 {product.stock > 0 ? (
                   <div className="text-green-600 flex items-center dark:text-green-500">
@@ -428,7 +428,7 @@ const ProductDetail = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="mb-6">
                 <label className="text-gray-700 font-medium block mb-2 dark:text-gray-300">Quantity</label>
                 <div className="flex items-center">
@@ -453,7 +453,7 @@ const ProductDetail = () => {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size={isMobile ? "default" : "lg"}
@@ -548,9 +548,9 @@ const ProductDetail = () => {
           )}
         </div>
       </main>
-      
+
       <Footer />
-      
+
       <ReviewForm
         isOpen={reviewFormOpen}
         onClose={() => setReviewFormOpen(false)}

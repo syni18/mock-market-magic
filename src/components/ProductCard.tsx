@@ -109,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
         
         <div className="mb-2 md:mb-3">
           <p className={`${isMobile ? 'text-base' : 'text-xl'} font-bold text-gray-900`}>
-            ${product.price.toFixed(2)}
+            ₹{(product.price * 83).toFixed(2)}
           </p>
         </div>
 

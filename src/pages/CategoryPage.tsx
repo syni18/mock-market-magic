@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getProductsByCategory, categories, Product } from '@/data/products';
@@ -21,32 +20,32 @@ const CategoryPage = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  
+
   // New filter states
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [maxPriceInCategory, setMaxPriceInCategory] = useState(1000);
   const [ratingFilter, setRatingFilter] = useState('all');
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  
+
   // Get the category name for display
   const categoryName = categories.find(cat => cat.id === categoryId)?.name || 'All Products';
-  
+
   // Load products based on category
   useEffect(() => {
     if (!categoryId) return;
-    
+
     const newProducts = getProductsByCategory(categoryId);
     setProducts(newProducts);
     setFilteredProducts(newProducts);
-    
+
     // Find the max price in this category for the price slider
     if (newProducts.length > 0) {
       const maxPrice = Math.max(...newProducts.map(product => product.price));
@@ -54,11 +53,11 @@ const CategoryPage = () => {
       setPriceRange([0, Math.ceil(maxPrice / 100) * 100]);
     }
   }, [categoryId]);
-  
+
   // Apply filters and sorting
   useEffect(() => {
     let result = [...products];
-    
+
     // Apply search filter
     if (searchTerm) {
       result = result.filter(product => 
@@ -66,18 +65,18 @@ const CategoryPage = () => {
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     // Apply price range filter
     result = result.filter(product => 
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
-    
+
     // Apply rating filter
     if (ratingFilter !== 'all') {
       const minRating = parseInt(ratingFilter, 10);
       result = result.filter(product => Math.floor(product.rating) >= minRating);
     }
-    
+
     // Apply sorting
     if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
@@ -86,10 +85,10 @@ const CategoryPage = () => {
     } else if (sortBy === 'rating') {
       result.sort((a, b) => b.rating - a.rating);
     }
-    
+
     setFilteredProducts(result);
   }, [products, searchTerm, sortBy, priceRange, ratingFilter]);
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // Search is already applied via useEffect
@@ -107,7 +106,7 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow">
         <div className="bg-gray-50 py-4 md:py-8">
           <div className="container">
@@ -116,7 +115,7 @@ const CategoryPage = () => {
                 <h1 className="text-2xl md:text-3xl font-bold">{categoryName}</h1>
                 <p className="text-gray-600 text-sm md:text-base">{filteredProducts.length} products available</p>
               </div>
-              
+
               {!isMobile && (
                 <div className="flex items-center gap-2">
                   <Button 
@@ -127,7 +126,7 @@ const CategoryPage = () => {
                     <SlidersHorizontal className="h-4 w-4 mr-2" />
                     Filters
                   </Button>
-                  
+
                   <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="hidden md:flex">
@@ -155,7 +154,7 @@ const CategoryPage = () => {
                       </form>
                     </PopoverContent>
                   </Popover>
-                  
+
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Sort by" />
@@ -172,7 +171,7 @@ const CategoryPage = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="container py-4 md:py-8">
           <div className="flex flex-col md:flex-row gap-4 md:gap-8">
             {/* Filters Sidebar (for desktop) */}
@@ -212,7 +211,7 @@ const CategoryPage = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-medium mb-3">Price Range</h3>
                     <div className="px-2">
@@ -225,13 +224,13 @@ const CategoryPage = () => {
                         className="mb-6"
                       />
                       <div className="flex justify-between items-center text-sm">
-                        <span>${priceRange[0]}</span>
+                        <span>₹{priceRange[0]}</span>
                         <span>to</span>
-                        <span>${priceRange[1]}</span>
+                        <span>₹{priceRange[1]}</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-medium mb-3">Rating</h3>
                     <RadioGroup value={ratingFilter} onValueChange={setRatingFilter}>
@@ -253,7 +252,7 @@ const CategoryPage = () => {
                       </div>
                     </RadioGroup>
                   </div>
-                  
+
                   <div>
                     <Collapsible 
                       open={isCollapsibleOpen} 
@@ -292,7 +291,7 @@ const CategoryPage = () => {
                 </CardContent>
               </Card>
             </div>
-            
+
             {/* Product Grid */}
             <div className="flex-grow">
               {filteredProducts.length === 0 ? (
@@ -314,7 +313,7 @@ const CategoryPage = () => {
           </div>
         </div>
       </main>
-      
+
       {/* Mobile filters/sort sticky bottom bar */}
       {isMobile && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg py-2 px-4 z-50">
@@ -360,7 +359,7 @@ const CategoryPage = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="py-2">
                     <h3 className="font-medium text-lg mb-3">Price Range</h3>
                     <div className="px-2">
@@ -373,13 +372,13 @@ const CategoryPage = () => {
                         className="mb-6"
                       />
                       <div className="flex justify-between items-center text-sm">
-                        <span>${priceRange[0]}</span>
+                        <span>₹{priceRange[0]}</span>
                         <span>to</span>
-                        <span>${priceRange[1]}</span>
+                        <span>₹{priceRange[1]}</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-medium text-lg mb-3">Rating</h3>
                     <RadioGroup value={ratingFilter} onValueChange={setRatingFilter}>
@@ -401,7 +400,7 @@ const CategoryPage = () => {
                       </div>
                     </RadioGroup>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-medium text-lg mb-3">Search</h3>
                     <form onSubmit={handleSearch} className="flex items-center">
@@ -425,7 +424,7 @@ const CategoryPage = () => {
                       </Button>
                     </form>
                   </div>
-                  
+
                   <Button 
                     onClick={() => setIsFilterSheetOpen(false)} 
                     className="w-full mt-4"
@@ -452,10 +451,10 @@ const CategoryPage = () => {
           </div>
         </div>
       )}
-      
+
       {/* Add bottom padding on mobile to account for the sticky filter bar */}
       {isMobile && <div className="h-16"></div>}
-      
+
       <Footer />
     </div>
   );

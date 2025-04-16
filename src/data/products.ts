@@ -15,7 +15,7 @@ export const products: Product[] = [
   {
     id: 1,
     name: "Premium Wireless Headphones",
-    price: 199.99,
+    price: 16599,
     description: "Experience crystal-clear audio with our premium wireless headphones. Featuring noise cancellation, 40-hour battery life, and comfortable over-ear cushions.",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     category: "electronics",
