@@ -26,6 +26,24 @@ export const signInWithGoogle = async () => {
         },
       }
     });
+
+    if (!error && data.user) {
+      // Create or update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.user_metadata?.full_name,
+          avatar_url: data.user.user_metadata?.avatar_url,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'id'
+        });
+
+      if (profileError) throw profileError;
+    }
+
     return { data, error: null };
   } catch (error) {
     console.error('Google sign in error:', error);
@@ -66,6 +84,22 @@ export const signUp = async (email: string, password: string, userData?: Record<
         data: userData,
       }
     });
+
+    if (!error && data.user) {
+      // Create profile for new user
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: data.user.id,
+          email: data.user.email,
+          full_name: userData?.full_name,
+          updated_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        }]);
+
+      if (profileError) throw profileError;
+    }
+
     return { data, error: null };
   } catch (error) {
     console.error('Sign up error:', error);
