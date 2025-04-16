@@ -347,16 +347,16 @@ const ProductDetail = () => {
 
       <main className="flex-grow py-8">
         <div className="container">
-          <div className="flex items-center space-x-2 mb-8 text-sm">
+          <div className="flex items-center space-x-1 md:space-x-2 mb-8 text-[10px] md:text-sm">
             <Link to="/" className="text-gray-500 hover:text-ecommerce-600 dark:text-gray-400 dark:hover:text-ecommerce-400">
               Home
             </Link>
-            <ChevronRight size={14} className="text-gray-400 dark:text-gray-600" />
+            <ChevronRight size={isMobile ? 12 : 14} className="text-gray-400 dark:text-gray-600" />
             <Link to="/products" className="text-gray-500 hover:text-ecommerce-600 dark:text-gray-400 dark:hover:text-ecommerce-400">
               Products
             </Link>
-            <ChevronRight size={14} className="text-gray-400 dark:text-gray-600" />
-            <span className="text-gray-900 font-medium dark:text-white">{product.name}</span>
+            <ChevronRight size={isMobile ? 12 : 14} className="text-gray-400 dark:text-gray-600" />
+            <span className="text-gray-900 font-medium dark:text-white truncate">{product.name}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
