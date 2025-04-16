@@ -46,13 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         console.log("session", data);
 
-        if (session) {
+        if (data.session) {
           setSession(data.session);
           setUser(data.session.user);
           setIsAuthenticated(true);
-
-          // Sync user data with profiles table
-          await syncUserProfile(data.session.user);
         }
 
         // Listen for auth changes
@@ -62,25 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(session);
             setUser(session?.user ?? null);
             setIsAuthenticated(!!session);
-
-            if (session?.user) {
-              // Sync user profile on sign in
-              await syncUserProfile(session.user);
-
-              // If it's a sign in event, navigate to home page
-              if (event === 'SIGNED_IN') {
-                if (!isMobile) {
-                  toast({
-                    title: "Welcome!",
-                    description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
-                  });
-                }
-
-                // Navigate to home page
-                navigate("/");
-              }
-            }
-
             setIsLoading(false);
           }
         );
@@ -100,48 +78,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setupAuth();
   }, [navigate, toast, isMobile]);
 
-  // Helper function to sync user data with profiles table
-  const syncUserProfile = async (user: User) => {
-    if (!user) return;
+  // Separate effect for profile syncing
+  useEffect(() => {
+    const syncUserProfile = async (user: User) => {
+      if (!user) return;
 
-    try {
-      // Check if user profile exists
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+      try {
+        // Check if user profile exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-      if (existingProfile) {
-        // Update existing profile with latest user data
-        await supabase
-          .from('profiles')
-          .update({
-            email: user.email,
-            full_name: user.user_metadata?.full_name || existingProfile.full_name,
-            avatar_url: user.user_metadata?.avatar_url || existingProfile.avatar_url,
-            phone: user.phone || existingProfile.phone,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', user.id);
-      } else {
-        // Create new profile
-        await supabase
-          .from('profiles')
-          .insert([{
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || null,
-            avatar_url: user.user_metadata?.avatar_url || null,
-            phone: user.phone || null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }]);
+        if (existingProfile) {
+          // Update existing profile with latest user data
+          await supabase
+            .from('profiles')
+            .update({
+              email: user.email,
+              full_name: user.user_metadata?.full_name || existingProfile.full_name,
+              avatar_url: user.user_metadata?.avatar_url || existingProfile.avatar_url,
+              phone: user.phone || existingProfile.phone,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', user.id);
+        } else {
+          // Create new profile
+          await supabase
+            .from('profiles')
+            .insert([{
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || null,
+              avatar_url: user.user_metadata?.avatar_url || null,
+              phone: user.phone || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }]);
+        }
+      } catch (error) {
+        console.error('Error syncing user profile:', error);
       }
-    } catch (error) {
-      console.error('Error syncing user profile:', error);
+    };
+
+    if (user) {
+      syncUserProfile(user);
     }
-  };
+  }, [user]);
+
 
   // Sign in with email
   const signIn = async (email: string, password: string) => {
