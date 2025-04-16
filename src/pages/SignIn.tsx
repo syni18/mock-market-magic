@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +11,29 @@ import * as z from 'zod';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { signInSchema, signUpSchema, phoneSchema, otpSchema } from '@/utils/ValidationSchema';
-import { log } from 'console';
+// Validation schemas
+const signInSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
+
+const signUpSchema = z.object({
+  fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  confirmPassword: z.string().min(6, { message: "Confirm password is required" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+const phoneSchema = z.object({
+  phoneNumber: z.string().min(10, { message: "Please enter a valid phone number" }),
+});
+
+const otpSchema = z.object({
+  code: z.string().min(6, { message: "Please enter a valid verification code" }),
+});
 
 const SignIn = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -97,8 +117,7 @@ const SignIn = () => {
 
   // Handle Google sign in
   const handleGoogleSignIn = async () => {
-    const {data} = await signInWithGoogle();
-    console.log("Google sign in data SignIn.tsx:", data);
+    await signInWithGoogle();
   };
 
   return (
