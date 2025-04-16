@@ -218,12 +218,12 @@ export const OrdersList = () => {
                             {item.name}
                           </p>
                           <p className="text-xs md:text-sm text-slate-500">
-                            Qty: {item.quantity} × ${item.price.toFixed(2)}
+                            Qty: {item.quantity} × ₹{item.price.toFixed(2)}
                           </p>
                         </div>
                         
                         <div className="text-right">
-                          <p className="font-medium text-sm md:text-base">${(item.quantity * item.price).toFixed(2)}</p>
+                          <p className="font-medium text-sm md:text-base">₹{(item.quantity * item.price).toFixed(2)}</p>
                         </div>
                       </li>
                     ))}
@@ -240,15 +240,15 @@ export const OrdersList = () => {
                     <div className="text-right">
                       <div className="flex justify-between md:justify-end md:gap-8 text-xs md:text-sm text-slate-600">
                         <span>Subtotal:</span>
-                        <span>${(order.total - 5.99).toFixed(2)}</span>
+                        <span>₹{(order.total - 5.99).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between md:justify-end md:gap-8 text-xs md:text-sm text-slate-600">
                         <span>Shipping:</span>
-                        <span>$5.99</span>
+                        <span>₹5.99</span>
                       </div>
                       <div className="flex justify-between md:justify-end md:gap-8 font-medium text-slate-800 text-sm md:text-lg mt-2">
                         <span>Total:</span>
-                        <span>${order.total.toFixed(2)}</span>
+                        <span>₹{order.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
