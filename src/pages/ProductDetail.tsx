@@ -177,7 +177,7 @@ const ProductDetail = () => {
             </div>
 
             <p className="text-sm font-bold text-gray-900 mb-1 dark:text-white">
-              ₹{(product.price * 83).toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </p>
           </div>
 
@@ -237,7 +237,7 @@ const ProductDetail = () => {
         </div>
 
         <p className="text-base font-bold text-gray-900 my-1 dark:text-white">
-          ₹{(product.price * 83).toFixed(2)}
+          ₹{product.price.toFixed(2)}
         </p>
 
         <div className="mt-auto pt-1">
@@ -403,7 +403,7 @@ const ProductDetail = () => {
               </div>
 
               <div className="text-3xl font-bold text-gray-900 mb-4 dark:text-white">
-                ₹{(product.price * 83).toFixed(2)}
+                ₹{product.price.toFixed(2)}
               </div>
 
               <p className="text-gray-700 mb-6 dark:text-gray-300">
