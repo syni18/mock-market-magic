@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
@@ -52,7 +51,7 @@ const Wishlist = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-blue-50">
       <Navbar />
-      
+
       <main className="flex-grow container py-6 md:py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
           <div>
@@ -61,7 +60,7 @@ const Wishlist = () => {
             </h1>
             <p className="text-slate-600">{items.length} items saved</p>
           </div>
-          
+
           {!isMobile && (
             <div className="flex gap-3">
               <Button 
@@ -86,7 +85,7 @@ const Wishlist = () => {
             </div>
           )}
         </div>
-        
+
         {items.length === 0 ? (
           <div className="text-center py-12 md:py-16 bg-white rounded-xl shadow-sm border border-slate-100 animate-fade-in">
             <div className="inline-flex justify-center items-center p-4 bg-indigo-50 rounded-full mb-6">
@@ -131,7 +130,7 @@ const Wishlist = () => {
                         <h3 className="font-medium text-sm line-clamp-1 text-slate-800">
                           {product.name}
                         </h3>
-                        
+
                         {/* Star rating */}
                         <div className="flex items-center my-1">
                           <div className="flex items-center text-amber-500">
@@ -151,12 +150,12 @@ const Wishlist = () => {
                           </div>
                           <span className="text-xs text-gray-500 ml-1">{product.rating.toFixed(1)}</span>
                         </div>
-                        
+
                         <p className="text-base font-bold text-slate-900 mb-2">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toFixed(2)}
                         </p>
                       </div>
-                      
+
                       <div className="flex gap-2 mt-auto">
                         <Button 
                           size="sm"
@@ -193,7 +192,7 @@ const Wishlist = () => {
                         <h3 className="text-lg font-medium line-clamp-1 hover:text-indigo-600 transition-colors text-slate-800">
                           {product.name}
                         </h3>
-                        
+
                         {/* Star rating */}
                         <div className="flex items-center my-2">
                           <div className="flex items-center text-amber-500 mr-1">
@@ -213,12 +212,12 @@ const Wishlist = () => {
                           </div>
                           <span className="text-sm text-gray-500">{product.rating.toFixed(1)}</span>
                         </div>
-                        
+
                         <p className="text-xl font-bold text-slate-900 mb-3">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toFixed(2)}
                         </p>
                       </div>
-                      
+
                       <div className="mt-auto flex gap-2">
                         <Button 
                           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-sm h-10"
@@ -244,7 +243,7 @@ const Wishlist = () => {
           </div>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );

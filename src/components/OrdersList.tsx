@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,18 +58,18 @@ export const OrdersList = () => {
   // Filter state
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Apply filters to orders
   const filteredOrders = orders.filter(order => {
     // Filter by status
     if (filterStatus && order.status !== filterStatus) return false;
-    
+
     // Filter by search term
     if (searchTerm && !order.id.toLowerCase().includes(searchTerm.toLowerCase()) && 
         !order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -112,7 +111,7 @@ export const OrdersList = () => {
         <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
           <Package className="mr-2 text-indigo-600" /> Your Orders
         </h2>
-        
+
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-auto">
             <Input
@@ -123,7 +122,7 @@ export const OrdersList = () => {
             />
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="flex gap-1 items-center text-sm">
@@ -184,13 +183,13 @@ export const OrdersList = () => {
                       <span className="text-xs md:text-sm">{order.date}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
                       {order.status}
                     </span>
-                    <span className="font-medium text-slate-800 text-sm md:text-base">${order.total.toFixed(2)}</span>
+                    <span className="font-medium text-slate-800 text-sm md:text-base">₹{order.total.toFixed(2)}</span>
                     {expandedOrder === order.id ? (
                       <ChevronUp className="h-5 w-5 text-slate-500" />
                     ) : (
@@ -199,7 +198,7 @@ export const OrdersList = () => {
                   </div>
                 </div>
               </div>
-              
+
               {expandedOrder === order.id && (
                 <div className="border-t border-slate-100 bg-slate-50 p-4">
                   <ul className="divide-y divide-slate-200">
@@ -212,7 +211,7 @@ export const OrdersList = () => {
                             className="h-full w-full object-cover"
                           />
                         </div>
-                        
+
                         <div className="ml-4 flex-grow">
                           <p className={isMobile ? "text-xs md:text-sm font-medium" : "text-sm md:text-base font-medium"}>
                             {item.name}
@@ -221,14 +220,14 @@ export const OrdersList = () => {
                             Qty: {item.quantity} × ₹{item.price.toFixed(2)}
                           </p>
                         </div>
-                        
+
                         <div className="text-right">
                           <p className="font-medium text-sm md:text-base">₹{(item.quantity * item.price).toFixed(2)}</p>
                         </div>
                       </li>
                     ))}
                   </ul>
-                  
+
                   <div className="mt-4 pt-4 border-t border-slate-200 flex flex-col-reverse md:flex-row md:justify-between md:items-center gap-4">
                     <Button 
                       variant="outline"
@@ -236,7 +235,7 @@ export const OrdersList = () => {
                     >
                       Track Order
                     </Button>
-                    
+
                     <div className="text-right">
                       <div className="flex justify-between md:justify-end md:gap-8 text-xs md:text-sm text-slate-600">
                         <span>Subtotal:</span>
