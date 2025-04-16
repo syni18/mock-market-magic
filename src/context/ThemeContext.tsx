@@ -14,19 +14,18 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   // Check for user preference or stored value
   const getInitialTheme = (): Theme => {
-    if (typeof window !== 'undefined') {
-      // Check localStorage first
-      const storedTheme = localStorage.getItem('theme') as Theme | null;
-      if (storedTheme === 'dark' || storedTheme === 'light') {
-        return storedTheme;
-      }
-      
-      // Check system preference
-      const userPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      return userPrefersDark ? 'dark' : 'light';
+    // Default to light theme
+    if (typeof window === 'undefined') {
+      return 'light';
     }
     
-    // Default to light
+    // Check localStorage first
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      return storedTheme;
+    }
+    
+    // Default to light theme
     return 'light';
   };
   
