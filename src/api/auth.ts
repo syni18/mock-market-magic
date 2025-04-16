@@ -25,27 +25,8 @@ export const signInWithGoogle = async () => {
         },
       },
     });
-    localStorage.setItem('userProfileAction', JSON.stringify(data));
-    console.log("Google sign in data:", data);
-
-    if (!error && data.user) {
-      // Create or update profile
-      const { error: profileError } = await supabase.from("users").upsert(
-        {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: data.user.user_metadata?.full_name,
-          avatar_url: data.user.user_metadata?.avatar_url,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "id",
-        },
-      );
-
-      if (profileError) throw profileError;
-    }
-
+    
+    // At this point, data only contains the URL for redirection
     return { data, error: null };
   } catch (error) {
     console.error("Google sign in error:", error);
