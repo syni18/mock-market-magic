@@ -98,7 +98,7 @@ export function WishlistTab() {
                       </span>
                     </div>
                     
-                    <p className="font-bold text-base">${item.price.toFixed(2)}</p>
+                    <p className="font-bold text-base">₹{item.price.toFixed(2)}</p>
                   </div>
                   
                   <div className="flex mt-2 gap-2">
@@ -162,7 +162,7 @@ export function WishlistTab() {
                       </span>
                     </div>
                     
-                    <p className="font-bold text-xl mb-3">${item.price.toFixed(2)}</p>
+                    <p className="font-bold text-xl mb-3">₹{item.price.toFixed(2)}</p>
                   </div>
                   
                   <div className="flex gap-2">
