@@ -142,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with email
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await import('@/api/auth').then(api => api.signIn(email, password));
       if (error) throw error;
       
       toast({
@@ -150,9 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "You've been successfully signed in.",
       });
       
-      // Redirect to home page after successful sign in
       navigate('/');
-      
       return { error: null };
     } catch (error) {
       console.error('Sign in error:', error);
@@ -169,9 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       const { error } = await import('@/api/auth').then(api => api.signInWithGoogle());
-      
       if (error) throw error;
-      
       return { error: null };
     } catch (error) {
       console.error('Google sign in error:', error);
@@ -187,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with phone
   const signInWithPhone = async (phone: string) => {
     try {
-      const { error } = await supabase.auth.signInWithOtp({ phone });
+      const { error } = await import('@/api/auth').then(api => api.signInWithPhone(phone));
       if (error) throw error;
       toast({
         title: "Verification code sent",
@@ -208,16 +204,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Verify phone OTP
   const verifyOtp = async (phone: string, token: string) => {
     try {
-      const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
+      const { error } = await import('@/api/auth').then(api => api.verifyOtp(phone, token));
       if (error) throw error;
       toast({
         title: "Successfully verified",
         description: "Your phone number has been verified.",
       });
-      
-      // Redirect to home page after successful verification
       navigate('/');
-      
       return { error: null };
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -233,22 +226,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign up
   const signUp = async (email: string, password: string, userData?: Record<string, any>) => {
     try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: userData,
-        }
-      });
-      
+      const { data, error } = await import('@/api/auth').then(api => api.signUp(email, password, userData));
       if (error) throw error;
-      
       toast({
         title: "Account created",
         description: "Please check your email to confirm your account.",
       });
-      
-      return { error: null, user: data.user };
+      return { error: null, user: data?.user ?? null };
     } catch (error) {
       console.error('Sign up error:', error);
       toast({
@@ -263,13 +247,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await import('@/api/auth').then(api => api.signOut());
+      if (error) throw error;
       toast({
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
-      
-      // Redirect to sign in page after sign out
       navigate('/signin');
     } catch (error) {
       console.error('Sign out error:', error);
