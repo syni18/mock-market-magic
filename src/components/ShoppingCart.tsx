@@ -53,6 +53,7 @@ export function ShoppingCart() {
               item={item}
               updateQuantity={updateQuantity}
               removeFromCart={removeFromCart}
+              navigate={navigate}
             />
           ))}
         </div>
@@ -86,6 +87,7 @@ export function ShoppingCart() {
                   item={item}
                   updateQuantity={updateQuantity}
                   removeFromCart={removeFromCart}
+                  navigate={navigate}
                 />
               ))}
             </tbody>
@@ -130,9 +132,10 @@ interface CartItemRowProps {
   item: CartItem;
   updateQuantity: (productId: number, quantity: number) => void;
   removeFromCart: (productId: number) => void;
+  navigate: any;
 }
 
-function CartItemRow({ item, updateQuantity, removeFromCart }: CartItemRowProps) {
+function CartItemRow({ item, updateQuantity, removeFromCart, navigate }: CartItemRowProps) {
   const { product, quantity } = item;
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -145,7 +148,7 @@ function CartItemRow({ item, updateQuantity, removeFromCart }: CartItemRowProps)
     <tr>
       <td className="px-6 py-4">
         <div className="flex items-center">
-          <div className="flex-shrink-0 h-16 w-16">
+          <div className="flex-shrink-0 h-16 w-16 cursor-pointer" onClick={() => navigate(`/products/${product.id}`)}>
             <img 
               className="h-full w-full object-cover rounded" 
               src={product.image} 
@@ -153,7 +156,12 @@ function CartItemRow({ item, updateQuantity, removeFromCart }: CartItemRowProps)
             />
           </div>
           <div className="ml-4">
-            <div className="font-medium text-gray-900 dark:text-white">{product.name}</div>
+            <div 
+              className="font-medium text-gray-900 dark:text-white cursor-pointer hover:text-ecommerce-600 dark:hover:text-ecommerce-400"
+              onClick={() => navigate(`/products/${product.id}`)}
+            >
+              {product.name}
+            </div>
           </div>
         </div>
       </td>
@@ -197,7 +205,7 @@ function CartItemRow({ item, updateQuantity, removeFromCart }: CartItemRowProps)
 }
 
 // Mobile cart item component
-function MobileCartItem({ item, updateQuantity, removeFromCart }: CartItemRowProps) {
+function MobileCartItem({ item, updateQuantity, removeFromCart, navigate }: CartItemRowProps) {
   const { product, quantity } = item;
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -210,7 +218,7 @@ function MobileCartItem({ item, updateQuantity, removeFromCart }: CartItemRowPro
     <div className="border rounded-lg p-4 bg-white dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center space-x-3">
         {/* Product Image */}
-        <div className="flex-shrink-0 w-16 h-16">
+        <div className="flex-shrink-0 w-16 h-16 cursor-pointer" onClick={() => navigate(`/products/${product.id}`)}>
           <img 
             className="h-full w-full object-cover rounded" 
             src={product.image} 
@@ -220,7 +228,12 @@ function MobileCartItem({ item, updateQuantity, removeFromCart }: CartItemRowPro
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.name}</h3>
+          <h3 
+            className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer hover:text-ecommerce-600 dark:hover:text-ecommerce-400 truncate"
+            onClick={() => navigate(`/products/${product.id}`)}
+          >
+            {product.name}
+          </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">₹{product.price.toFixed(2)}</p>
         </div>
 
