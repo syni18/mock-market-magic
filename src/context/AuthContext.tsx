@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -28,16 +27,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = window.innerWidth < 768; // Assumed mobile breakpoint
 
   // Initialize auth and set up listeners
   useEffect(() => {
     const setupAuth = async () => {
       setIsLoading(true);
-      
+
       try {
         // Check for active session
         const { data, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           console.error('Error getting session:', error.message);
           setIsLoading(false);
@@ -45,16 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.log("session", data);
-        
+
         if (session) {
           setSession(data.session);
           setUser(data.session.user);
           setIsAuthenticated(true);
-          
+
           // Sync user data with profiles table
           await syncUserProfile(data.session.user);
         }
-        
+
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
@@ -62,29 +62,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(session);
             setUser(session?.user ?? null);
             setIsAuthenticated(!!session);
-            
+
             if (session?.user) {
               // Sync user profile on sign in
               await syncUserProfile(session.user);
-              
+
               // If it's a sign in event, navigate to home page
               if (event === 'SIGNED_IN') {
-                toast({
-                  title: "Welcome!",
-                  description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
-                });
-                
+                if (!isMobile) {
+                  toast({
+                    title: "Welcome!",
+                    description: `You've been successfully signed in, ${session.user.user_metadata?.full_name || 'User'}!`,
+                  });
+                }
+
                 // Navigate to home page
                 navigate("/");
               }
             }
-            
+
             setIsLoading(false);
           }
         );
-        
+
         setIsLoading(false);
-        
+
         // Cleanup subscription
         return () => {
           subscription.unsubscribe();
@@ -94,14 +96,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       }
     };
-    
+
     setupAuth();
-  }, [navigate, toast]);
+  }, [navigate, toast, isMobile]);
 
   // Helper function to sync user data with profiles table
   const syncUserProfile = async (user: User) => {
     if (!user) return;
-    
+
     try {
       // Check if user profile exists
       const { data: existingProfile } = await supabase
@@ -109,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('id', user.id)
         .single();
-      
+
       if (existingProfile) {
         // Update existing profile with latest user data
         await supabase
@@ -146,12 +148,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await import('@/api/auth').then(api => api.signIn(email, password));
       if (error) throw error;
-      
-      toast({
-        title: "Welcome back!",
-        description: "You've been successfully signed in.",
-      });
-      
+
+      if (!isMobile) {
+        toast({
+          title: "Welcome back!",
+          description: "You've been successfully signed in.",
+        });
+      }
+
       navigate('/');
       return { error: null };
     } catch (error) {
@@ -187,10 +191,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await import('@/api/auth').then(api => api.signInWithPhone(phone));
       if (error) throw error;
-      toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the code.",
-      });
+      if (!isMobile) {
+        toast({
+          title: "Verification code sent",
+          description: "Please check your phone for the code.",
+        });
+      }
       return { error: null };
     } catch (error) {
       console.error('Phone sign in error:', error);
@@ -208,10 +214,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await import('@/api/auth').then(api => api.verifyOtp(phone, token));
       if (error) throw error;
-      toast({
-        title: "Successfully verified",
-        description: "Your phone number has been verified.",
-      });
+      if (!isMobile) {
+        toast({
+          title: "Successfully verified",
+          description: "Your phone number has been verified.",
+        });
+      }
       navigate('/');
       return { error: null };
     } catch (error) {
@@ -230,10 +238,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await import('@/api/auth').then(api => api.signUp(email, password, userData));
       if (error) throw error;
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your account.",
-      });
+      if (!isMobile) {
+        toast({
+          title: "Account created",
+          description: "Please check your email to confirm your account.",
+        });
+      }
       return { error: null, user: data?.user ?? null };
     } catch (error) {
       console.error('Sign up error:', error);
@@ -251,26 +261,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await import('@/api/auth').then(api => api.signOut());
       if (error) throw error;
-      
+
       // Reset local state
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
-      
+
       // Clear any context/state data
       localStorage.clear();
       sessionStorage.clear();
-      
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
-      
+
+      if (!isMobile) {
+        toast({
+          title: "Signed out",
+          description: "You've been successfully signed out.",
+        });
+      }
+
       // Force navigation after state reset
       setTimeout(() => {
         navigate('/signin', { replace: true });
       }, 100);
-      
+
     } catch (error) {
       console.error('Sign out error:', error);
       toast({
@@ -278,7 +290,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Please try again. If the problem persists, refresh the page.",
         variant: "destructive",
       });
-      
+
       // Attempt force sign out on error
       setUser(null);
       setSession(null);
