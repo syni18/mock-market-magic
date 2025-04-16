@@ -97,6 +97,13 @@ export const signUp = async (
 export const signOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    // Clear any local storage items
+    localStorage.removeItem('userAddresses');
+    localStorage.removeItem('sb-access-token');
+    localStorage.removeItem('sb-refresh-token');
+    
     return { error: null };
   } catch (error) {
     console.error("Sign out error:", error);

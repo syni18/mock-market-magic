@@ -251,18 +251,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await import('@/api/auth').then(api => api.signOut());
       if (error) throw error;
+      
+      // Reset local state
+      setUser(null);
+      setSession(null);
+      setIsAuthenticated(false);
+      
+      // Clear any context/state data
+      localStorage.clear();
+      sessionStorage.clear();
+      
       toast({
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
-      navigate('/signin');
+      
+      // Force navigation after state reset
+      setTimeout(() => {
+        navigate('/signin', { replace: true });
+      }, 100);
+      
     } catch (error) {
       console.error('Sign out error:', error);
       toast({
         title: "Sign out failed",
-        description: "Something went wrong.",
+        description: "Please try again. If the problem persists, refresh the page.",
         variant: "destructive",
       });
+      
+      // Attempt force sign out on error
+      setUser(null);
+      setSession(null);
+      setIsAuthenticated(false);
+      navigate('/signin', { replace: true });
     }
   };
 
